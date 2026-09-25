@@ -1,0 +1,77 @@
+{
+  "player.level_up": {
+    "subtitle": "subtitles.terraforge_rpg.player.level_up",
+    "sounds": [
+      "minecraft:entity.player.levelup"
+    ]
+  },
+  "ability.activate": {
+    "subtitle": "subtitles.terraforge_rpg.ability.activate",
+    "sounds": [
+      "minecraft:entity.evoker.cast_spell"
+    ]
+  },
+  "boss.roar": {
+    "subtitle": "subtitles.terraforge_rpg.boss.roar",
+    "sounds": [
+      "minecraft:entity.ender_dragon.growl",
+      "minecraft:entity.warden.roar"
+    ]
+  },
+  "boss.roar_mechanical": {
+    "subtitle": "subtitles.terraforge_rpg.boss.roar_mechanical",
+    "sounds": [
+      "minecraft:entity.iron_golem.damage",
+      "minecraft:entity.warden.sonic_boom"
+    ]
+  },
+  "boss.deathray": {
+    "subtitle": "subtitles.terraforge_rpg.boss.deathray",
+    "sounds": [
+      "minecraft:entity.warden.sonic_boom",
+      "minecraft:entity.lightning_bolt.thunder"
+    ]
+  },
+  "item.reforge_success": {
+    "subtitle": "subtitles.terraforge_rpg.item.reforge_success",
+    "sounds": [
+      "minecraft:block.anvil.use"
+    ]
+  },
+  "item.reforge_fail": {
+    "subtitle": "subtitles.terraforge_rpg.item.reforge_fail",
+    "sounds": [
+      "minecraft:block.anvil.hit"
+    ]
+  },
+  "item.magic_mirror": {
+    "subtitle": "subtitles.terraforge_rpg.item.magic_mirror",
+    "sounds": [
+      "minecraft:block.portal.travel"
+    ]
+  },
+  "item.hook_shoot": {
+    "subtitle": "subtitles.terraforge_rpg.item.hook_shoot",
+    "sounds": [
+      "minecraft:entity.arrow.shoot"
+    ]
+  },
+  "item.hook_latch": {
+    "subtitle": "subtitles.terraforge_rpg.item.hook_latch",
+    "sounds": [
+      "minecraft:block.chain.hit"
+    ]
+  },
+  "player.mana_restore": {
+    "subtitle": "subtitles.terraforge_rpg.player.mana_restore",
+    "sounds": [
+      "minecraft:block.amethyst_block.chime"
+    ]
+  },
+  "item.beam_slash": {
+    "subtitle": "subtitles.terraforge_rpg.item.beam_slash",
+    "sounds": [
+      "minecraft:entity.player.attack.sweep"
+    ]
+  }
+}

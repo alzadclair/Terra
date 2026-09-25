@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="Proprietary"
+
+[[mods]]
+modId="terraforge_rpg"
+version="${version}"
+displayName="TerraForge RPG"
+authors="Alza, TerraForge Team"
+description='''A complete 3D Terraria conversion with 1000 levels, 30 races, hybrid mechanics, and infinite potential.'''
+
+[[dependencies.terraforge_rpg]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.250,21.2)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.terraforge_rpg]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"

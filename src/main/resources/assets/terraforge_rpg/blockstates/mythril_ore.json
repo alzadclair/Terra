@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "terraforge_rpg:block/mythril_ore"
+    }
+  }
+}
