@@ -29,6 +29,9 @@ public final class ModModelLayers {
     public static final ModelLayerLocation TITAN_BOSS = new ModelLayerLocation(
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "titan_boss"), "main");
 
+    public static final ModelLayerLocation GOLEM = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "golem"), "main");
+
     public static final ModelLayerLocation WALL_OF_FLESH = new ModelLayerLocation(
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "wall_of_flesh"), "main");
 

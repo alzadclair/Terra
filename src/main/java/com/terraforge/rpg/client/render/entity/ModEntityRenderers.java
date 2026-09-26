@@ -3,6 +3,7 @@ package com.terraforge.rpg.client.render.entity;
 import com.terraforge.rpg.client.model.DemonEyeModel;
 import com.terraforge.rpg.client.model.DukeFishronModel;
 import com.terraforge.rpg.client.model.EyeOfCthulhuModel;
+import com.terraforge.rpg.client.model.GolemModel;
 import com.terraforge.rpg.client.model.KingSlimeModel;
 import com.terraforge.rpg.client.model.ModModelLayers;
 import com.terraforge.rpg.client.model.MoonLordModel;
@@ -29,6 +30,7 @@ public final class ModEntityRenderers {
         event.registerLayerDefinition(ModModelLayers.PLANTERA, PlanteraModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.DUKE_FISHRON, DukeFishronModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.TITAN_BOSS, TitanBossModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.GOLEM, GolemModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.WALL_OF_FLESH, WallOfFleshModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.THE_DESTROYER, TheDestroyerModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.MOON_LORD, MoonLordModel::createBodyLayer);

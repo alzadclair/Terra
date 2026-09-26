@@ -11,7 +11,9 @@ import net.minecraft.world.entity.Entity;
 
 /**
  * 3D Model for colossal bosses (Golem, Moon Lord).
+ * @deprecated Replaced by dedicated 3D models (GolemModel, MoonLordModel). Kept only for temporary layer compatibility.
  */
+@Deprecated(forRemoval = true)
 public class TitanBossModel<T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart root;
     private final ModelPart head;
