@@ -20,6 +20,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,11 +34,13 @@ import java.util.Set;
  */
 public abstract class TerraBaseBoss extends TerraBaseMonster implements ITerrariaBoss {
 
+    private static final EntityDataAccessor<Integer> DATA_PHASE_NUMBER =
+            SynchedEntityData.defineId(TerraBaseBoss.class, EntityDataSerializers.INT);
+
     private final String bossId;
     private final int arenaRadius;
     private final ServerBossEvent bossEvent;
 
-    private BossPhase currentPhase = BossPhase.PHASE_1;
     private boolean enraged = false;
     private int ticksWithoutPlayers = 0;
 
@@ -77,13 +83,24 @@ public abstract class TerraBaseBoss extends TerraBaseMonster implements ITerrari
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_PHASE_NUMBER, 1);
+    }
+
+    @Override
     public BossPhase getCurrentPhase() {
-        return currentPhase;
+        int num = this.entityData.get(DATA_PHASE_NUMBER);
+        return switch (num) {
+            case 2 -> BossPhase.PHASE_2;
+            case 3 -> BossPhase.ENRAGED;
+            default -> BossPhase.PHASE_1;
+        };
     }
 
     @Override
     public void setPhase(BossPhase phase) {
-        this.currentPhase = phase;
+        this.entityData.set(DATA_PHASE_NUMBER, phase.phaseNumber());
         onPhaseTransition(phase);
     }
 
@@ -110,7 +127,7 @@ public abstract class TerraBaseBoss extends TerraBaseMonster implements ITerrari
 
         // Check health threshold for phase transitions
         double healthRatio = (double) this.getHealth() / (double) this.getMaxHealth();
-        if (healthRatio <= 0.5 && currentPhase.phaseNumber() == 1) {
+        if (healthRatio <= 0.5 && getCurrentPhase().phaseNumber() == 1) {
             setPhase(BossPhase.PHASE_2);
         }
 

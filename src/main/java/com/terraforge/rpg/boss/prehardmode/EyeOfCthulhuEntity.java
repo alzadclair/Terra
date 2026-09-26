@@ -1,14 +1,17 @@
 package com.terraforge.rpg.boss.prehardmode;
 
 import com.terraforge.rpg.boss.BossPhase;
-import com.terraforge.rpg.boss.BossScalingService;
 import com.terraforge.rpg.boss.TerraBaseBoss;
 import com.terraforge.rpg.entity.mob.ServantOfCthulhuEntity;
 import com.terraforge.rpg.registry.ModEntities;
 import com.terraforge.rpg.registry.ModItems;
+import com.terraforge.rpg.registry.ModSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -34,15 +37,61 @@ import java.util.EnumSet;
 
 /**
  * Eye of Cthulhu canonical boss implementation (Terraria 1.4.5.8).
- * Features Phase 1 servant spawning/hovering, Phase 2 rapid chain dashing, and daylight despawn.
+ * Features Phase 1 servant spawning/hovering, Phase 2 rapid chain dashing,
+ * server-authoritative skeletal animation state synchronization, and dramatic phase transition.
  */
 public class EyeOfCthulhuEntity extends TerraBaseBoss {
 
     public static final double BASE_HEALTH = 2800.0;
 
+    public enum EyeAnimState {
+        SPAWN,
+        IDLE,
+        HOVER,
+        LOOK,
+        SUMMON_SERVANT,
+        CHARGE_PREPARE,
+        CHARGE,
+        CHARGE_RECOVER,
+        HURT,
+        TRANSITIONING,
+        PHASE2_IDLE,
+        PHASE2_CHARGE_PREPARE,
+        PHASE2_CHARGE,
+        PHASE2_BITE,
+        ENRAGED,
+        DYING
+    }
+
+    private static final EntityDataAccessor<Integer> DATA_ANIM_STATE =
+            SynchedEntityData.defineId(EyeOfCthulhuEntity.class, EntityDataSerializers.INT);
+
+    private boolean isTransitioning = false;
+    private int transitionTicks = 0;
+
     public EyeOfCthulhuEntity(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level, "eye_of_cthulhu", 30_000L, 70_000L, 12, 80, BossEvent.BossBarColor.RED);
         this.moveControl = new FlyingMoveControl(this, 20, true);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_ANIM_STATE, EyeAnimState.IDLE.ordinal());
+    }
+
+    public EyeAnimState getAnimState() {
+        int ordinal = this.entityData.get(DATA_ANIM_STATE);
+        EyeAnimState[] states = EyeAnimState.values();
+        return (ordinal >= 0 && ordinal < states.length) ? states[ordinal] : EyeAnimState.IDLE;
+    }
+
+    public void setAnimState(EyeAnimState state) {
+        this.entityData.set(DATA_ANIM_STATE, state.ordinal());
+    }
+
+    public boolean isTransitioning() {
+        return isTransitioning;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -83,13 +132,76 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
     }
 
     @Override
+    protected void onPhaseTransition(BossPhase newPhase) {
+        super.onPhaseTransition(newPhase);
+
+        if (newPhase.phaseNumber() >= 2 && !this.level().isClientSide()) {
+            this.isTransitioning = true;
+            this.transitionTicks = 60; // 3.0 seconds transition convulsion
+            setAnimState(EyeAnimState.TRANSITIONING);
+
+            this.level().playSound(
+                    null, this.getX(), this.getY(), this.getZ(),
+                    ModSoundEvents.BOSS_ROAR.get(), SoundSource.HOSTILE,
+                    3.0f, 0.8f
+            );
+        }
+    }
+
+    @Override
     public void customServerAiStep() {
         super.customServerAiStep();
+
+        // Handle server-authoritative Phase 2 transformation
+        if (isTransitioning) {
+            transitionTicks--;
+
+            // Convulsive shaking
+            this.setDeltaMovement(
+                    (mobRandom.nextDouble() - 0.5) * 0.25,
+                    (mobRandom.nextDouble() - 0.5) * 0.25,
+                    (mobRandom.nextDouble() - 0.5) * 0.25
+            );
+
+            if (this.level() instanceof ServerLevel serverLevel) {
+                if (transitionTicks % 8 == 0) {
+                    serverLevel.sendParticles(
+                            ParticleTypes.CRIT,
+                            this.getX(), this.getY() + 1.0, this.getZ(),
+                            20, 0.8, 0.8, 0.8, 0.15
+                    );
+                    serverLevel.sendParticles(
+                            ParticleTypes.DAMAGE_INDICATOR,
+                            this.getX(), this.getY() + 1.0, this.getZ(),
+                            12, 0.6, 0.6, 0.6, 0.1
+                    );
+                    serverLevel.playSound(
+                            null, this.getX(), this.getY(), this.getZ(),
+                            SoundEvents.SLIME_BLOCK_BREAK, SoundSource.HOSTILE,
+                            1.5f, 0.7f
+                    );
+                }
+            }
+
+            if (transitionTicks <= 0) {
+                isTransitioning = false;
+                setAnimState(EyeAnimState.PHASE2_IDLE);
+
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.sendParticles(
+                            ParticleTypes.EXPLOSION,
+                            this.getX(), this.getY() + 1.0, this.getZ(),
+                            3, 0.5, 0.5, 0.5, 0.0
+                    );
+                }
+            }
+            return;
+        }
 
         // Daytime departure (Terraria rule: despawns if night ends)
         long dayTime = this.level().getDayTime() % 24000;
         if (dayTime < 13000 || dayTime > 23000) {
-            // Ascend rapidly into space
+            setAnimState(EyeAnimState.ENRAGED);
             this.setDeltaMovement(0, 1.2, 0);
             if (this.getY() > 300) {
                 this.discard();
@@ -99,6 +211,7 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
 
     @Override
     public void die(DamageSource damageSource) {
+        setAnimState(EyeAnimState.DYING);
         super.die(damageSource);
 
         if (!this.level().isClientSide()) {
@@ -144,6 +257,10 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
 
         @Override
         public void tick() {
+            if (eye.isTransitioning()) {
+                return;
+            }
+
             LivingEntity target = eye.getTarget();
             if (target == null) return;
 
@@ -155,13 +272,20 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                 // High speed dash
                 eye.setDeltaMovement(chargeVector);
 
-                if (eye.distanceToSqr(target) < 4.0) {
+                double distSqr = eye.distanceToSqr(target);
+                if (distSqr < 4.0) {
                     eye.doHurtTarget(target);
+                    if (isPhase2) {
+                        eye.setAnimState(EyeAnimState.PHASE2_BITE);
+                    }
+                } else {
+                    eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE : EyeAnimState.CHARGE);
                 }
 
                 if (attackTimer <= 0) {
                     isCharging = false;
                     chargeCount++;
+                    eye.setAnimState(EyeAnimState.CHARGE_RECOVER);
                     int maxCharges = isPhase2 ? 5 : 3;
 
                     if (chargeCount >= maxCharges) {
@@ -181,8 +305,16 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     eye.setDeltaMovement(toHover.normalize().scale(isPhase2 ? 0.40 : 0.25));
                 }
 
+                // Prepare charge animation cue 12 ticks before launch
+                if (attackTimer <= 12 && attackTimer > 0) {
+                    eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE_PREPARE : EyeAnimState.CHARGE_PREPARE);
+                } else if (attackTimer > 12) {
+                    eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_IDLE : EyeAnimState.HOVER);
+                }
+
                 // Phase 1: Spawn Servants of Cthulhu periodically
-                if (!isPhase2 && attackTimer % 40 == 0 && eye.level() instanceof ServerLevel serverLevel) {
+                if (!isPhase2 && attackTimer == 40 && eye.level() instanceof ServerLevel serverLevel) {
+                    eye.setAnimState(EyeAnimState.SUMMON_SERVANT);
                     ServantOfCthulhuEntity servant = new ServantOfCthulhuEntity(ModEntities.SERVANT_OF_CTHULHU.get(), eye.level());
                     servant.setPos(eye.getX(), eye.getY() - 0.5, eye.getZ());
                     servant.setTarget(target);
@@ -198,6 +330,7 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     double chargeSpeed = isPhase2 ? 0.85 : 0.55;
                     chargeVector = target.getEyePosition().subtract(eye.position()).normalize().scale(chargeSpeed);
                     attackTimer = isPhase2 ? 20 : 30; // Max charge duration
+                    eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE : EyeAnimState.CHARGE);
 
                     if (eye.level() != null) {
                         eye.level().playSound(null, eye.getX(), eye.getY(), eye.getZ(),

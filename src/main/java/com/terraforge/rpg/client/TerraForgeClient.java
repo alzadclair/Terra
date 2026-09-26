@@ -3,9 +3,13 @@ package com.terraforge.rpg.client;
 import com.terraforge.rpg.client.hud.TerraHudOverlay;
 import com.terraforge.rpg.client.key.ModKeyMappings;
 import com.terraforge.rpg.client.render.entity.ModEntityRenderers;
+import com.terraforge.rpg.client.render.mesh.TerraMeshLoader;
 import com.terraforge.rpg.util.TerraLogger;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
@@ -20,6 +24,7 @@ public final class TerraForgeClient {
         modBus.addListener(TerraHudOverlay::register);
         modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
         modBus.addListener(ModEntityRenderers::registerEntityRenderers);
+        modBus.addListener(TerraForgeClient::onRegisterReloadListeners);
 
         // Register client game bus listeners
         NeoForge.EVENT_BUS.addListener(ClientInputHandler::onClientTick);
@@ -28,6 +33,13 @@ public final class TerraForgeClient {
     private static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             TerraLogger.info("CLIENT", "TerraForge RPG client initialized successfully.");
+        });
+    }
+
+    private static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) (ResourceManager resourceManager) -> {
+            TerraMeshLoader.clearCache();
+            TerraLogger.info("CLIENT", "Cleared 3D mesh and animation caches on resource reload (F3+T).");
         });
     }
 
