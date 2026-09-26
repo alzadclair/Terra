@@ -97,18 +97,18 @@ ENTITIES = [
         "asset_path": "models/entity/mob/face_monster.obj",
         "triangles": 10000,
         "rig_type": "FORWARD_KINEMATICS",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:eye_of_cthulhu",
         "name": "Eye of Cthulhu",
         "category": "BOSS_PREHARDMODE",
         "renderer": "EyeOfCthulhuRenderer",
-        "model_type": "OBJ_REAL_3D",
-        "asset_path": "models/entity/boss/eye_of_cthulhu_p1.obj",
+        "model_type": "OBJ_SKINNED_3D",
+        "asset_path": "models/entity/boss/eye_of_cthulhu_p1.obj; eye_of_cthulhu_p2.obj; .skin.json",
         "triangles": 22084,
-        "rig_type": "SKELETAL_MASTER_RIG_16_BONES",
-        "status": "INTEGRATED_3D"
+        "rig_type": "SKELETAL_WEIGHTED_LBS_16_BONES",
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:servant_of_cthulhu",
@@ -130,7 +130,7 @@ ENTITIES = [
         "asset_path": "models/entity/boss/wall_of_flesh.obj",
         "triangles": 9375,
         "rig_type": "WALL_PULSE_TRAVERSAL",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:the_hungry",
@@ -152,7 +152,7 @@ ENTITIES = [
         "asset_path": "models/entity/boss/king_slime.obj",
         "triangles": 7994,
         "rig_type": "GELATIN_DEFORMATION_CROWN_RIG",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:goblin_peon",
@@ -295,40 +295,40 @@ ENTITIES = [
         "asset_path": "models/entity/boss/the_destroyer.obj",
         "triangles": 8892,
         "rig_type": "SEGMENTED_SERPENT_IK",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:skeletron_prime",
         "name": "Skeletron Prime",
         "category": "BOSS_HARDMODE",
         "renderer": "BossGenericRenderer",
-        "model_type": "BLOCKBENCH_3D",
+        "model_type": "CUBELIST_PLACEHOLDER_3D",
         "asset_path": "textures/entity/boss/skeletron_prime.png",
         "triangles": 512,
         "rig_type": "MULTI_LIMB_ROBOTIC_IK",
-        "status": "INTEGRATED_3D"
+        "status": "BLOCKED_ASSET"
     },
     {
         "entity_id": "terraforge_rpg:plantera",
         "name": "Plantera",
         "category": "BOSS_HARDMODE",
         "renderer": "BossGenericRenderer",
-        "model_type": "BLOCKBENCH_3D",
+        "model_type": "CUBELIST_PLACEHOLDER_3D",
         "asset_path": "textures/entity/boss/plantera.png",
         "triangles": 480,
         "rig_type": "TENTACLE_ANCHOR_RIG",
-        "status": "INTEGRATED_3D"
+        "status": "PLACEHOLDER_3D"
     },
     {
         "entity_id": "terraforge_rpg:golem",
         "name": "Golem",
         "category": "BOSS_HARDMODE",
         "renderer": "BossGolemRenderer",
-        "model_type": "BLOCKBENCH_3D",
+        "model_type": "ORIGINAL_HIERARCHICAL_3D",
         "asset_path": "textures/entity/boss/golem.png",
         "triangles": 640,
         "rig_type": "DETACHABLE_HEAD_PISTON_ARMS",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_ORIGINAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:duke_fishron",
@@ -339,7 +339,7 @@ ENTITIES = [
         "asset_path": "models/entity/boss/duke_fishron.obj",
         "triangles": 6528,
         "rig_type": "AQUATIC_WING_PROPULSION",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     },
     {
         "entity_id": "terraforge_rpg:moon_lord",
@@ -350,7 +350,7 @@ ENTITIES = [
         "asset_path": "models/entity/boss/moon_lord.obj",
         "triangles": 32294,
         "rig_type": "TITANIC_FLOATING_TORSO_ARMS",
-        "status": "INTEGRATED_3D"
+        "status": "INTEGRATED_EXTERNAL_3D"
     }
 ]
 

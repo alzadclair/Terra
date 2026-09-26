@@ -6,12 +6,12 @@ terraforge_rpg:green_slime,Green Slime,MONSTER,TerraSlimeRenderer,LAYERED_VOLUME
 terraforge_rpg:blue_slime,Blue Slime,MONSTER,TerraSlimeRenderer,LAYERED_VOLUMETRIC_3D,textures/entity/mob/blue_slime.png,24,SQUASH_AND_STRETCH,INTEGRATED_3D
 terraforge_rpg:demon_eye,Demon Eye,MONSTER,DemonEyeRenderer,BLOCKBENCH_3D,textures/entity/mob/demon_eye.png,128,AERODYNAMIC_TILT,INTEGRATED_3D
 terraforge_rpg:terra_zombie,Terra Zombie,MONSTER,TerraZombieRenderer,HUMANOID_3D,textures/entity/mob/terra_zombie.png,72,HUMANOID_BIPED,INTEGRATED_3D
-terraforge_rpg:face_monster,Face Monster,MONSTER,FaceMonsterRenderer,OBJ_REAL_3D,models/entity/mob/face_monster.obj,10000,FORWARD_KINEMATICS,INTEGRATED_3D
-terraforge_rpg:eye_of_cthulhu,Eye of Cthulhu,BOSS_PREHARDMODE,EyeOfCthulhuRenderer,OBJ_REAL_3D,models/entity/boss/eye_of_cthulhu_p1.obj,22084,SKELETAL_MASTER_RIG_16_BONES,INTEGRATED_3D
+terraforge_rpg:face_monster,Face Monster,MONSTER,FaceMonsterRenderer,OBJ_REAL_3D,models/entity/mob/face_monster.obj,10000,FORWARD_KINEMATICS,INTEGRATED_EXTERNAL_3D
+terraforge_rpg:eye_of_cthulhu,Eye of Cthulhu,BOSS_PREHARDMODE,EyeOfCthulhuRenderer,OBJ_SKINNED_3D,models/entity/boss/eye_of_cthulhu_p1.obj; eye_of_cthulhu_p2.obj; .skin.json,22084,SKELETAL_WEIGHTED_LBS_16_BONES,INTEGRATED_EXTERNAL_3D
 terraforge_rpg:servant_of_cthulhu,Servant of Cthulhu,MONSTER,ServantOfCthulhuRenderer,BLOCKBENCH_3D,textures/entity/mob/servant_of_cthulhu.png,128,AERODYNAMIC_SWARM,INTEGRATED_3D
-terraforge_rpg:wall_of_flesh,Wall of Flesh,BOSS_PREHARDMODE,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/wall_of_flesh.obj,9375,WALL_PULSE_TRAVERSAL,INTEGRATED_3D
+terraforge_rpg:wall_of_flesh,Wall of Flesh,BOSS_PREHARDMODE,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/wall_of_flesh.obj,9375,WALL_PULSE_TRAVERSAL,INTEGRATED_EXTERNAL_3D
 terraforge_rpg:the_hungry,The Hungry,MONSTER,BossGenericRenderer,BLOCKBENCH_3D,textures/entity/boss/the_hungry.png,128,TETHERED_SNAP,INTEGRATED_3D
-terraforge_rpg:king_slime,King Slime,BOSS_PREHARDMODE,KingSlimeRenderer,OBJ_REAL_3D,models/entity/boss/king_slime.obj,7994,GELATIN_DEFORMATION_CROWN_RIG,INTEGRATED_3D
+terraforge_rpg:king_slime,King Slime,BOSS_PREHARDMODE,KingSlimeRenderer,OBJ_REAL_3D,models/entity/boss/king_slime.obj,7994,GELATIN_DEFORMATION_CROWN_RIG,INTEGRATED_EXTERNAL_3D
 terraforge_rpg:goblin_peon,Goblin Peon,MONSTER,GoblinRenderer,HUMANOID_3D,textures/entity/mob/goblin/goblin_peon.png,84,HUMANOID_BIPED,INTEGRATED_3D
 terraforge_rpg:goblin_thief,Goblin Thief,MONSTER,GoblinRenderer,HUMANOID_3D,textures/entity/mob/goblin/goblin_thief.png,84,HUMANOID_AGILE,INTEGRATED_3D
 terraforge_rpg:goblin_warrior,Goblin Warrior,MONSTER,GoblinRenderer,HUMANOID_3D,textures/entity/mob/goblin/goblin_warrior.png,84,HUMANOID_ARMORED,INTEGRATED_3D
@@ -24,9 +24,9 @@ terraforge_rpg:slime_mount,Slime Mount,MOUNT,SlimeMountRenderer,LAYERED_VOLUMETR
 terraforge_rpg:retinazer,Retinazer,BOSS_HARDMODE,TwinBossRenderer,BLOCKBENCH_3D,textures/entity/boss/retinazer.png,256,MECHANICAL_TWIN_RIG,INTEGRATED_3D
 terraforge_rpg:spazmatism,Spazmatism,BOSS_HARDMODE,TwinBossRenderer,BLOCKBENCH_3D,textures/entity/boss/spazmatism.png,256,MECHANICAL_TWIN_RIG,INTEGRATED_3D
 terraforge_rpg:destroyer_probe,Destroyer Probe,BOSS_MINION,BossGenericRenderer,BLOCKBENCH_3D,textures/entity/boss/destroyer_probe.png,128,DRONE_ORBIT,INTEGRATED_3D
-terraforge_rpg:the_destroyer,The Destroyer,BOSS_HARDMODE,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/the_destroyer.obj,8892,SEGMENTED_SERPENT_IK,INTEGRATED_3D
-terraforge_rpg:skeletron_prime,Skeletron Prime,BOSS_HARDMODE,BossGenericRenderer,BLOCKBENCH_3D,textures/entity/boss/skeletron_prime.png,512,MULTI_LIMB_ROBOTIC_IK,INTEGRATED_3D
-terraforge_rpg:plantera,Plantera,BOSS_HARDMODE,BossGenericRenderer,BLOCKBENCH_3D,textures/entity/boss/plantera.png,480,TENTACLE_ANCHOR_RIG,INTEGRATED_3D
-terraforge_rpg:golem,Golem,BOSS_HARDMODE,BossGolemRenderer,BLOCKBENCH_3D,textures/entity/boss/golem.png,640,DETACHABLE_HEAD_PISTON_ARMS,INTEGRATED_3D
-terraforge_rpg:duke_fishron,Duke Fishron,BOSS_ENDGAME,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/duke_fishron.obj,6528,AQUATIC_WING_PROPULSION,INTEGRATED_3D
-terraforge_rpg:moon_lord,Moon Lord,BOSS_FINAL,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/moon_lord.obj,32294,TITANIC_FLOATING_TORSO_ARMS,INTEGRATED_3D
+terraforge_rpg:the_destroyer,The Destroyer,BOSS_HARDMODE,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/the_destroyer.obj,8892,SEGMENTED_SERPENT_IK,INTEGRATED_EXTERNAL_3D
+terraforge_rpg:skeletron_prime,Skeletron Prime,BOSS_HARDMODE,BossGenericRenderer,CUBELIST_PLACEHOLDER_3D,textures/entity/boss/skeletron_prime.png,512,MULTI_LIMB_ROBOTIC_IK,BLOCKED_ASSET
+terraforge_rpg:plantera,Plantera,BOSS_HARDMODE,BossGenericRenderer,CUBELIST_PLACEHOLDER_3D,textures/entity/boss/plantera.png,480,TENTACLE_ANCHOR_RIG,PLACEHOLDER_3D
+terraforge_rpg:golem,Golem,BOSS_HARDMODE,BossGolemRenderer,ORIGINAL_HIERARCHICAL_3D,textures/entity/boss/golem.png,640,DETACHABLE_HEAD_PISTON_ARMS,INTEGRATED_ORIGINAL_3D
+terraforge_rpg:duke_fishron,Duke Fishron,BOSS_ENDGAME,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/duke_fishron.obj,6528,AQUATIC_WING_PROPULSION,INTEGRATED_EXTERNAL_3D
+terraforge_rpg:moon_lord,Moon Lord,BOSS_FINAL,BossGenericRenderer,OBJ_REAL_3D,models/entity/boss/moon_lord.obj,32294,TITANIC_FLOATING_TORSO_ARMS,INTEGRATED_EXTERNAL_3D
