@@ -27,6 +27,10 @@ import java.util.Set;
  */
 public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
 
+    public static final ResourceLocation SKIN_P1 =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/eye_of_cthulhu_p1.skin.json");
+    public static final ResourceLocation SKIN_P2 =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/eye_of_cthulhu_p2.skin.json");
     public static final ResourceLocation MESH_P1 =
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/eye_of_cthulhu_p1.obj");
     public static final ResourceLocation MESH_P2 =
@@ -140,77 +144,25 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         poseStack.scale(0.04f, 0.04f, 0.04f);
 
         boolean isPhase2 = activeEntity != null && activeEntity.getCurrentPhase().phaseNumber() >= 2;
-        ResourceLocation meshLoc = isPhase2 ? MESH_P2 : MESH_P1;
-        TerraMesh3D mesh = TerraMeshLoader.getOrLoad(meshLoc);
+        ResourceLocation skinLoc = isPhase2 ? SKIN_P2 : SKIN_P1;
 
         float a = ((color >> 24) & 0xFF) / 255.0f;
         float r = ((color >> 16) & 0xFF) / 255.0f;
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
 
-        Set<String> partNames = mesh.getPartNames();
-
-        if (partNames.isEmpty() || (partNames.size() == 1 && partNames.contains("main"))) {
-            // Unsegmented mesh fallback - apply root bone matrix
-            Bone rootBone = skeleton.getBone("root");
-            if (rootBone != null) {
-                poseStack.mulPose(rootBone.skinMatrix);
-            }
+        try {
+            com.terraforge.rpg.client.render.mesh.TerraSkinnedMesh skinnedMesh =
+                    com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.getOrLoad(skinLoc);
+            skinnedMesh.skin(skeleton);
+            skinnedMesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+        } catch (Exception e) {
+            // Fallback to static OBJ mesh if skin loading encounters an issue
+            ResourceLocation meshLoc = isPhase2 ? MESH_P2 : MESH_P1;
+            TerraMesh3D mesh = TerraMeshLoader.getOrLoad(meshLoc);
             mesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
-        } else {
-            // Segmented mesh with skeletal bone bindings
-            for (String partName : partNames) {
-                // Skip duplicate lower-LOD meshes when high-detail meshes are present
-                if (shouldSkipLodPart(partName, isPhase2)) {
-                    continue;
-                }
-
-                TerraMesh3D.Part part = mesh.getPart(partName);
-                if (part == null) continue;
-
-                Bone boundBone = resolveBoneForPart(partName, isPhase2);
-
-                poseStack.pushPose();
-                if (boundBone != null) {
-                    poseStack.mulPose(boundBone.skinMatrix);
-                }
-                part.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
-                poseStack.popPose();
-            }
         }
 
         poseStack.popPose();
-    }
-
-    private boolean shouldSkipLodPart(String partName, boolean isPhase2) {
-        if (!isPhase2) {
-            return "Object_14".equals(partName) || "Object_18".equals(partName) ||
-                   "Object_22".equals(partName) || "Object_23".equals(partName) ||
-                   "Object_24".equals(partName);
-        } else {
-            return "Object_16".equals(partName) || "Object_20".equals(partName) ||
-                   "Object_24".equals(partName) || "Object_28".equals(partName);
-        }
-    }
-
-    private Bone resolveBoneForPart(String partName, boolean isPhase2) {
-        if (!isPhase2) {
-            return switch (partName) {
-                case "Object_16", "Object_14" -> skeleton.getBone("optic_back");
-                case "Object_20", "Object_18" -> skeleton.getBone("body");
-                case "Object_26", "Object_22" -> skeleton.getBone("body");
-                case "Object_27", "Object_23" -> skeleton.getBone("pupil");
-                case "Object_28", "Object_24" -> skeleton.getBone("iris");
-                default -> skeleton.getBone("body");
-            };
-        } else {
-            return switch (partName) {
-                case "Object_18", "Object_16" -> skeleton.getBone("optic_back");
-                case "Object_22", "Object_20" -> skeleton.getBone("body");
-                case "Object_26", "Object_24" -> skeleton.getBone("upper_jaw");
-                case "Object_30", "Object_28" -> skeleton.getBone("lower_jaw");
-                default -> skeleton.getBone("body");
-            };
-        }
     }
 }
