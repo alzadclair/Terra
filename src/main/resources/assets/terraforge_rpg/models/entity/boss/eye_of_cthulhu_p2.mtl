@@ -9,7 +9,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd boss_eye_cthulhu_phase2_v2_baseColor.png
+map_Kd ../../../textures/entity/boss/eye_of_cthulhu_p2.png
 
 newmtl boss_eye_cthulhu_stalk_v2
 Ns 250.000000
@@ -19,7 +19,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd boss_eye_cthulhu_stalk_v2_baseColor.png
+map_Kd ../../../textures/entity/boss/eye_of_cthulhu_p2.png
 
 newmtl boss_eye_cthulhu_teeth
 Ns 250.000000
@@ -29,4 +29,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd boss_eye_cthulhu_teeth_baseColor.png
+map_Kd ../../../textures/entity/boss/eye_of_cthulhu_p2.png

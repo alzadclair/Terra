@@ -8,5 +8,5 @@ Ks 0.500000 0.500000 0.500000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd lambert2_baseColor.png
+map_Kd ../../textures/item/vortex_beater.png
 map_Ke lambert2_baseColor.png
