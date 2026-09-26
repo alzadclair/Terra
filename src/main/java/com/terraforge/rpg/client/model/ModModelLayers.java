@@ -29,5 +29,17 @@ public final class ModModelLayers {
     public static final ModelLayerLocation TITAN_BOSS = new ModelLayerLocation(
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "titan_boss"), "main");
 
+    public static final ModelLayerLocation WALL_OF_FLESH = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "wall_of_flesh"), "main");
+
+    public static final ModelLayerLocation THE_DESTROYER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "the_destroyer"), "main");
+
+    public static final ModelLayerLocation MOON_LORD = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "moon_lord"), "main");
+
+    public static final ModelLayerLocation FACE_MONSTER = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "face_monster"), "main");
+
     private ModModelLayers() {}
 }

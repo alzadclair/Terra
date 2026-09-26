@@ -5,12 +5,13 @@ import com.terraforge.rpg.client.model.DukeFishronModel;
 import com.terraforge.rpg.client.model.EyeOfCthulhuModel;
 import com.terraforge.rpg.client.model.KingSlimeModel;
 import com.terraforge.rpg.client.model.ModModelLayers;
+import com.terraforge.rpg.client.model.MoonLordModel;
 import com.terraforge.rpg.client.model.PlanteraModel;
 import com.terraforge.rpg.client.model.SkeletronPrimeModel;
+import com.terraforge.rpg.client.model.TheDestroyerModel;
 import com.terraforge.rpg.client.model.TitanBossModel;
+import com.terraforge.rpg.client.model.WallOfFleshModel;
 import com.terraforge.rpg.registry.ModEntities;
-import net.minecraft.client.model.GhastModel;
-import net.minecraft.client.model.geom.ModelLayers;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
 /**
@@ -28,6 +29,10 @@ public final class ModEntityRenderers {
         event.registerLayerDefinition(ModModelLayers.PLANTERA, PlanteraModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.DUKE_FISHRON, DukeFishronModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.TITAN_BOSS, TitanBossModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.WALL_OF_FLESH, WallOfFleshModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.THE_DESTROYER, TheDestroyerModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.MOON_LORD, MoonLordModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.FACE_MONSTER, com.terraforge.rpg.client.model.FaceMonsterModel::createBodyLayer);
     }
 
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -41,13 +46,14 @@ public final class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.BLUE_SLIME.get(), TerraSlimeRenderer::new);
         event.registerEntityRenderer(ModEntities.DEMON_EYE.get(), DemonEyeRenderer::new);
         event.registerEntityRenderer(ModEntities.TERRA_ZOMBIE.get(), TerraZombieRenderer::new);
+        event.registerEntityRenderer(ModEntities.FACE_MONSTER.get(), FaceMonsterRenderer::new);
         event.registerEntityRenderer(ModEntities.SERVANT_OF_CTHULHU.get(), ServantOfCthulhuRenderer::new);
 
         // Pre-Hardmode Bosses
         event.registerEntityRenderer(ModEntities.KING_SLIME.get(), KingSlimeRenderer::new);
         event.registerEntityRenderer(ModEntities.EYE_OF_CTHULHU.get(), EyeOfCthulhuRenderer::new);
         event.registerEntityRenderer(ModEntities.WALL_OF_FLESH.get(),
-                ctx -> new BossGenericRenderer<>(ctx, new GhastModel<>(ctx.bakeLayer(ModelLayers.GHAST)), 3.0F, "textures/entity/boss/wall_of_flesh.png", 3.5F, 6.0F, 3.5F));
+                ctx -> new BossGenericRenderer<>(ctx, new WallOfFleshModel(ctx.bakeLayer(ModModelLayers.WALL_OF_FLESH)), 3.0F, "textures/entity/boss/wall_of_flesh.png", 3.5F, 6.0F, 3.5F));
         event.registerEntityRenderer(ModEntities.THE_HUNGRY.get(),
                 ctx -> new BossGenericRenderer<>(ctx, new DemonEyeModel<>(ctx.bakeLayer(ModModelLayers.DEMON_EYE)), 0.5F, "textures/entity/boss/the_hungry.png", 0.9F));
 
@@ -72,7 +78,7 @@ public final class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.DESTROYER_PROBE.get(),
                 ctx -> new BossGenericRenderer<>(ctx, new DemonEyeModel<>(ctx.bakeLayer(ModModelLayers.DEMON_EYE)), 0.5F, "textures/entity/boss/destroyer_probe.png", 0.8F));
         event.registerEntityRenderer(ModEntities.THE_DESTROYER.get(),
-                ctx -> new BossGenericRenderer<>(ctx, new GhastModel<>(ctx.bakeLayer(ModelLayers.GHAST)), 3.0F, "textures/entity/boss/the_destroyer.png", 3.0F));
+                ctx -> new BossGenericRenderer<>(ctx, new TheDestroyerModel(ctx.bakeLayer(ModModelLayers.THE_DESTROYER)), 3.0F, "textures/entity/boss/the_destroyer.png", 3.0F));
         event.registerEntityRenderer(ModEntities.SKELETRON_PRIME.get(),
                 ctx -> new BossGenericRenderer<>(ctx, new SkeletronPrimeModel<>(ctx.bakeLayer(ModModelLayers.SKELETRON_PRIME)), 2.5F, "textures/entity/boss/skeletron_prime.png", 2.2F));
 
@@ -83,7 +89,7 @@ public final class ModEntityRenderers {
         event.registerEntityRenderer(ModEntities.DUKE_FISHRON.get(),
                 ctx -> new BossGenericRenderer<>(ctx, new DukeFishronModel<>(ctx.bakeLayer(ModModelLayers.DUKE_FISHRON)), 2.5F, "textures/entity/boss/duke_fishron.png", 2.2F));
         event.registerEntityRenderer(ModEntities.MOON_LORD.get(),
-                ctx -> new BossGenericRenderer<>(ctx, new TitanBossModel<>(ctx.bakeLayer(ModModelLayers.TITAN_BOSS)), 4.0F, "textures/entity/boss/moon_lord.png", 4.0F));
+                ctx -> new BossGenericRenderer<>(ctx, new MoonLordModel(ctx.bakeLayer(ModModelLayers.MOON_LORD)), 4.0F, "textures/entity/boss/moon_lord.png", 4.0F));
     }
 
     private ModEntityRenderers() {}

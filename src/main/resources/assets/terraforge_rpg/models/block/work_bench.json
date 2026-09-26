@@ -1,0 +1,8 @@
+{
+  "loader": "neoforge:obj",
+  "model": "terraforge_rpg:models/block/work_bench.obj",
+  "textures": {
+    "m_12": "terraforge_rpg:block/work_bench"
+  },
+  "ambientocclusion": true
+}

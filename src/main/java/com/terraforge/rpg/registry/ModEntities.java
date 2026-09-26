@@ -82,6 +82,14 @@ public final class ModEntities {
                     .updateInterval(2)
                     .build("terra_zombie"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<com.terraforge.rpg.entity.mob.FaceMonsterEntity>> FACE_MONSTER =
+            ENTITIES.register("face_monster", () -> EntityType.Builder.<com.terraforge.rpg.entity.mob.FaceMonsterEntity>of(
+                    com.terraforge.rpg.entity.mob.FaceMonsterEntity::new, MobCategory.MONSTER)
+                    .sized(0.7f, 2.2f)
+                    .clientTrackingRange(64)
+                    .updateInterval(2)
+                    .build("face_monster"));
+
     public static final DeferredHolder<EntityType<?>, EntityType<EyeOfCthulhuEntity>> EYE_OF_CTHULHU =
             ENTITIES.register("eye_of_cthulhu", () -> EntityType.Builder.<EyeOfCthulhuEntity>of(
                     EyeOfCthulhuEntity::new, MobCategory.MONSTER)
@@ -275,6 +283,7 @@ public final class ModEntities {
         event.put(BLUE_SLIME.get(), TerraSlimeEntity.createAttributes(TerraSlimeEntity.SlimeVariant.BLUE).build());
         event.put(DEMON_EYE.get(), DemonEyeEntity.createAttributes().build());
         event.put(TERRA_ZOMBIE.get(), TerraZombieEntity.createAttributes().build());
+        event.put(FACE_MONSTER.get(), com.terraforge.rpg.entity.mob.FaceMonsterEntity.createAttributes().build());
         event.put(EYE_OF_CTHULHU.get(), EyeOfCthulhuEntity.createAttributes().build());
         event.put(SERVANT_OF_CTHULHU.get(), ServantOfCthulhuEntity.createAttributes().build());
         event.put(WALL_OF_FLESH.get(), com.terraforge.rpg.boss.prehardmode.WallOfFleshEntity.createAttributes().build());

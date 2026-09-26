@@ -147,7 +147,7 @@ public final class CharacterMenuScreen extends Screen {
         // Header Title Banner
         graphics.fill(left + 2, top + 2, left + GUI_WIDTH - 2, top + 22, 0xFF181E2C);
         graphics.fill(left + 2, top + 22, left + GUI_WIDTH - 2, top + 23, 0xFF3B4861);
-        graphics.drawString(font, Component.literal("§6§lTERRAFORGE RPG §7— §fStatus do Personagem"), left + 12, top + 7, 0xFFFFFF, false);
+        graphics.drawString(font, Component.literal("§6§lTERRAFORGE RPG §8| §f§lStatus do Personagem"), left + 12, top + 7, 0xFFFFFF, true);
 
         // Left Panel (Player Preview & Info)
         int boxLeft = left + 12;
@@ -157,8 +157,10 @@ public final class CharacterMenuScreen extends Screen {
         graphics.fill(boxLeft, boxTop, boxRight, boxBottom, 0xFF0D1017);
         graphics.renderOutline(boxLeft, boxTop, boxRight - boxLeft, boxBottom - boxTop, 0xFF2A3447);
 
-        // 3D Player Entity Render
+        // 3D Player Entity Render (Isolated)
+        graphics.pose().pushPose();
         InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, boxLeft, boxTop, boxRight, boxBottom, 40, 0.0625f, mouseX, mouseY, player);
+        graphics.pose().popPose();
         graphics.flush();
 
         // Left Panel Player Stats
@@ -167,29 +169,29 @@ public final class CharacterMenuScreen extends Screen {
 
         // Level & Evolution Status
         if (data.getLevel() >= 1000 && data.hasEvolution()) {
-            graphics.drawString(font, "Nível: §e1000 MAX §d(Potencial: ∞)", left + 14, infoY, 0xFFFFFF, false);
+            graphics.drawString(font, "§e§lNível: §f1000 MAX §d§l(∞)", left + 14, infoY, 0xFFFFFF, true);
         } else {
-            graphics.drawString(font, "Nível: §e" + data.getLevel(), left + 14, infoY, 0xFFFFFF, false);
+            graphics.drawString(font, "§e§lNível: §f" + data.getLevel(), left + 14, infoY, 0xFFFFFF, true);
         }
 
         // XP Bar
         double currentXp = data.getCurrentXp();
         double reqXp = LevelService.getRequiredXp(data);
-        graphics.drawString(font, String.format("XP: §b%.0f / %.0f", currentXp, reqXp), left + 14, infoY + lineGap, 0xCCCCCC, false);
+        graphics.drawString(font, String.format("§b§lXP: §f%.0f §7/ §b%.0f", currentXp, reqXp), left + 14, infoY + lineGap, 0xFFFFFF, true);
 
         // Race & Ability
         String raceName = capitalize(data.getPrimaryRace());
         if (data.isHybrid() && !data.getSecondaryRace().isEmpty()) {
             raceName = "§d[Híbrido] §f" + raceName;
         }
-        graphics.drawString(font, "Raça: " + raceName, left + 14, infoY + (lineGap * 2), 0xFFFFFF, false);
+        graphics.drawString(font, "§f§lRaça: §e" + raceName, left + 14, infoY + (lineGap * 2), 0xFFFFFF, true);
 
         // Status Points Available
-        graphics.drawString(font, "Pontos: §a§l" + data.getAvailableStatusPoints(), left + 14, infoY + (lineGap * 3), 0xFFFFFF, false);
+        graphics.drawString(font, "§a§lPontos: §f§l" + data.getAvailableStatusPoints(), left + 14, infoY + (lineGap * 3), 0xFFFFFF, true);
 
         // Special Accessory Slot Display
-        String acc = data.getEquippedSpecialAccessory().isEmpty() ? "§7Vazio" : "§6" + capitalize(data.getEquippedSpecialAccessory());
-        graphics.drawString(font, "Artefato: " + acc, left + 14, infoY + (lineGap * 4), 0xFFD700, false);
+        String acc = data.getEquippedSpecialAccessory().isEmpty() ? "§7Vazio" : "§6§l" + capitalize(data.getEquippedSpecialAccessory());
+        graphics.drawString(font, "§6§lArtefato: " + acc, left + 14, infoY + (lineGap * 4), 0xFFFFFF, true);
 
         // Vertical Column Divider Line
         graphics.fill(left + 144, top + 26, left + 145, top + GUI_HEIGHT - 28, 0xFF2A3447);
@@ -210,9 +212,19 @@ public final class CharacterMenuScreen extends Screen {
                 graphics.fill(rightColLeft - 4, y - 4, left + GUI_WIDTH - 6, y + rowHeight - 4, 0xFF161B27);
             }
 
+            String colorPrefix = switch (type) {
+                case DEFENSE -> "§a§l";
+                case MAGIC_DEFENSE -> "§b§l";
+                case ATTACK -> "§c§l";
+                case MAGIC_ATTACK -> "§d§l";
+                case CRITICAL -> "§6§l";
+                case CRITICAL_CHANCE -> "§e§l";
+                case SPEED -> "§3§l";
+            };
+
             String capStr = snapshot.uncapped() ? "§d∞" : String.valueOf(snapshot.effectiveCap());
-            String line = String.format("%s: §f%d §7/ %s", Component.translatable(type.getTranslationKey()).getString(), snapshot.investedRank(), capStr);
-            graphics.drawString(font, line, rightColLeft, y + 2, 0xFFFFFF, false);
+            String line = String.format("%s%s: §f%d §8/ §7%s", colorPrefix, Component.translatable(type.getTranslationKey()).getString(), snapshot.investedRank(), capStr);
+            graphics.drawString(font, line, rightColLeft, y + 2, 0xFFFFFF, true);
 
             // Tooltip trigger check
             if (mouseX >= rightColLeft && mouseX <= rightColLeft + 145 && mouseY >= y - 3 && mouseY <= y + 17) {

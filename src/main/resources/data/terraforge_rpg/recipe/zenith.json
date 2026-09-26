@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "terraforge_rpg:terra_blade"
+    },
+    {
+      "item": "terraforge_rpg:meowmere"
+    },
+    {
+      "item": "terraforge_rpg:seedler"
+    },
+    {
+      "item": "terraforge_rpg:starfury"
+    },
+    {
+      "item": "terraforge_rpg:copper_shortsword"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "terraforge_rpg:zenith"
+  }
+}

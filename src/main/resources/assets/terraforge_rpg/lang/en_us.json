@@ -50,7 +50,7 @@
   "entity.terraforge_rpg.skeletron_prime": "§5§lSkeletron Prime",
   "entity.terraforge_rpg.plantera": "§c§lPlantera",
   "entity.terraforge_rpg.golem": "§6§l§cAncient Golem",
-  "entity.terraforge_rpg.duke_fishron": "§c§lDuke Fishron",
+  "entity.terraforge_rpg.duke_fishron": "§4§lDuke Fishron",
   "entity.terraforge_rpg.moon_lord": "§4§l★ MOON LORD ★",
   "entity.terraforge_rpg.green_slime": "Green Slime",
   "entity.terraforge_rpg.blue_slime": "Blue Slime",
@@ -180,5 +180,17 @@
   "block.terraforge_rpg.orichalcum_ore": "Minério de Oricalco",
   "block.terraforge_rpg.adamantite_ore": "Minério de Adamantite",
   "block.terraforge_rpg.titanium_ore": "Minério de Titânio",
-  "block.terraforge_rpg.luminite_ore": "Minério de Luminita"
+  "block.terraforge_rpg.luminite_ore": "Minério de Luminita",
+  "block.terraforge_rpg.work_bench": "Work Bench",
+  "entity.terraforge_rpg.face_monster": "Face Monster",
+  "item.terraforge_rpg.true_nights_edge": "True Night's Edge",
+  "item.terraforge_rpg.zenith": "Zenith",
+  "item.terraforge_rpg.seedler": "Seedler",
+  "item.terraforge_rpg.starfury": "Starfury",
+  "item.terraforge_rpg.diamond_staff": "Diamond Staff",
+  "item.terraforge_rpg.boomstick": "Boomstick",
+  "item.terraforge_rpg.vortex_beater": "Vortex Beater",
+  "item.terraforge_rpg.phoenix_blaster": "Phoenix Blaster",
+  "item.terraforge_rpg.uzi": "Uzi",
+  "item.terraforge_rpg.celebration_mk2": "Celebration Mk2"
 }

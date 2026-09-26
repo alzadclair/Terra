@@ -81,6 +81,11 @@ public final class SpecialAccessorySelectorScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        graphics.fillGradient(0, 0, width, height, 0xC0060910, 0xD8060910);
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics, mouseX, mouseY, partialTick);
 
@@ -94,7 +99,7 @@ public final class SpecialAccessorySelectorScreen extends Screen {
         graphics.fillGradient(left, top, left + GUI_WIDTH, top + GUI_HEIGHT, 0xEE12151D, 0xEE1A1E29);
         graphics.renderOutline(left, top, GUI_WIDTH, GUI_HEIGHT, 0xFF4A5568);
 
-        graphics.drawString(font, "§6§lARTEFATOS ESPECIAIS §7(Slot Único)", left + 12, top + 10, 0xFFFFFF);
+        graphics.drawString(font, "§6§lARTEFATOS ESPECIAIS §8| §f§lSlot Único", left + 12, top + 10, 0xFFFFFF, true);
 
         List<ItemStack> available = new ArrayList<>();
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
@@ -106,7 +111,7 @@ public final class SpecialAccessorySelectorScreen extends Screen {
         }
 
         if (available.isEmpty() && data.getEquippedSpecialAccessory().isEmpty()) {
-            graphics.drawString(font, "§7Nenhum Artefato Especial no inventário.", left + 20, top + 70, 0x888888);
+            graphics.drawString(font, "§7Nenhum Artefato Especial no inventário.", left + 20, top + 70, 0xAAAAAA, true);
         }
 
         int itemTop = top + 52;
@@ -117,7 +122,7 @@ public final class SpecialAccessorySelectorScreen extends Screen {
             int y = itemTop + (i * rowHeight);
 
             graphics.renderItem(stack, left + 16, y - 2);
-            graphics.drawString(font, stack.getHoverName(), left + 38, y + 2, 0xFFFFFF);
+            graphics.drawString(font, stack.getHoverName(), left + 38, y + 2, 0xFFFFFF, true);
 
             // Hover tooltip
             if (mouseX >= left + 16 && mouseX <= left + GUI_WIDTH - 75 && mouseY >= y - 2 && mouseY <= y + 16) {

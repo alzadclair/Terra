@@ -64,6 +64,19 @@ public abstract class TerraBaseBoss extends TerraBaseMonster implements ITerrari
     }
 
     @Override
+    public Component getName() {
+        if (hasCustomName()) {
+            return getCustomName();
+        }
+        return Component.translatable("entity.terraforge_rpg." + bossId);
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return getName();
+    }
+
+    @Override
     public BossPhase getCurrentPhase() {
         return currentPhase;
     }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "S": {
+      "item": "minecraft:diamond_sword"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    }
+  },
+  "pattern": [
+    " E ",
+    "OSO",
+    " O "
+  ],
+  "result": {
+    "count": 1,
+    "id": "terraforge_rpg:nights_edge"
+  }
+}

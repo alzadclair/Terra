@@ -385,6 +385,7 @@ public final class ModItems {
             () -> new com.terraforge.rpg.item.weapon.TsunamiBowItem(new Item.Properties().stacksTo(1)));
 
     // Block Items
+    public static final DeferredItem<BlockItem> WORK_BENCH_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.WORK_BENCH);
     public static final DeferredItem<BlockItem> COPPER_ORE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.COPPER_ORE);
     public static final DeferredItem<BlockItem> TIN_ORE_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.TIN_ORE);
     public static final DeferredItem<BlockItem> ASH_BLOCK_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.ASH_BLOCK);

@@ -146,7 +146,8 @@ public final class ModCreativeModeTabs {
                         output.accept(ModItems.MEOWMERE.get());
                         output.accept(ModItems.TSUNAMI.get());
 
-                        // Ores and Blocks
+                        // Crafting Stations & Blocks
+                        output.accept(ModItems.WORK_BENCH_ITEM.get());
                         output.accept(ModItems.COPPER_ORE_ITEM.get());
                         output.accept(ModItems.TIN_ORE_ITEM.get());
                         output.accept(ModItems.ASH_BLOCK_ITEM.get());

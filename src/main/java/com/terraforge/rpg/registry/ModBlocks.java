@@ -33,6 +33,10 @@ public final class ModBlocks {
     public static final DeferredBlock<Block> CRIMSTONE_BLOCK = BLOCKS.registerSimpleBlock("crimstone_block",
             BlockBehaviour.Properties.of().strength(4.5f, 6.0f).sound(SoundType.STONE).requiresCorrectToolForDrops());
 
+    // Terraria Crafting Stations
+    public static final DeferredBlock<com.terraforge.rpg.block.WorkBenchBlock> WORK_BENCH = BLOCKS.register("work_bench",
+            com.terraforge.rpg.block.WorkBenchBlock::new);
+
     // Terraria Altars
     public static final DeferredBlock<com.terraforge.rpg.block.DemonAltarBlock> DEMON_ALTAR = BLOCKS.register("demon_altar",
             () -> new com.terraforge.rpg.block.DemonAltarBlock(false));

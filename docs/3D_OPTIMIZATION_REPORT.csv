@@ -1,0 +1,15 @@
+item_id,name,triangles_before,triangles_after,texture_mem_before_kb,texture_mem_after_kb,status
+terra_blade,Terra Blade,408,408,65536,1024,OPTIMIZED_3D
+meowmere,Meowmere,382,382,65536,1024,OPTIMIZED_3D
+nights_edge,Night's Edge,468,468,16,1024,OPTIMIZED_3D
+true_nights_edge,True Night's Edge,540,540,65536,1024,OPTIMIZED_3D
+zenith,Zenith,526,526,32768,1024,OPTIMIZED_3D
+seedler,Seedler,434,434,65536,1024,OPTIMIZED_3D
+starfury,Starfury,212,212,0,1024,OPTIMIZED_3D
+diamond_staff,Diamond Staff,424,424,0,1024,OPTIMIZED_3D
+megashark,Megashark,156,156,4,1024,OPTIMIZED_3D
+boomstick,Boomstick,686,686,2048,1024,OPTIMIZED_3D
+vortex_beater,Vortex Beater,960,960,16384,1024,OPTIMIZED_3D
+phoenix_blaster,Phoenix Blaster,1241,1241,1024,1024,OPTIMIZED_3D
+uzi,Uzi,588,588,1024,1024,OPTIMIZED_3D
+celebration_mk2,Celebration Mk2,9354,9354,0,1024,OPTIMIZED_3D

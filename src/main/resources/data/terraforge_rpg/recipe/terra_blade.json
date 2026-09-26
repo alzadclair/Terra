@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "terraforge_rpg:true_nights_edge"
+    },
+    {
+      "item": "terraforge_rpg:excalibur"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "terraforge_rpg:terra_blade"
+  }
+}

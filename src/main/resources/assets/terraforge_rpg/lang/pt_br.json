@@ -50,7 +50,7 @@
   "entity.terraforge_rpg.skeletron_prime": "§5§lEsqueletron Alfa",
   "entity.terraforge_rpg.plantera": "§c§lPlantera",
   "entity.terraforge_rpg.golem": "§6§l§cGolem Ancião",
-  "entity.terraforge_rpg.duke_fishron": "§c§lDuque Peixe-dragão",
+  "entity.terraforge_rpg.duke_fishron": "§4§lDuque Peixe-dragão",
   "entity.terraforge_rpg.moon_lord": "§4§l★ SENHOR DA LUA ★",
   "entity.terraforge_rpg.green_slime": "Slime Verde",
   "entity.terraforge_rpg.blue_slime": "Slime Azul",
@@ -180,5 +180,17 @@
   "block.terraforge_rpg.orichalcum_ore": "Minério de Oricalco",
   "block.terraforge_rpg.adamantite_ore": "Minério de Adamantite",
   "block.terraforge_rpg.titanium_ore": "Minério de Titânio",
-  "block.terraforge_rpg.luminite_ore": "Minério de Luminita"
+  "block.terraforge_rpg.luminite_ore": "Minério de Luminita",
+  "block.terraforge_rpg.work_bench": "Bancada de Trabalho",
+  "entity.terraforge_rpg.face_monster": "Monstro de Cara",
+  "item.terraforge_rpg.true_nights_edge": "Verdadeira Lâmina da Noite",
+  "item.terraforge_rpg.zenith": "Zênite",
+  "item.terraforge_rpg.seedler": "Semeador",
+  "item.terraforge_rpg.starfury": "Fúria das Estrelas",
+  "item.terraforge_rpg.diamond_staff": "Cajado de Diamante",
+  "item.terraforge_rpg.boomstick": "Bacamarte",
+  "item.terraforge_rpg.vortex_beater": "Batedor do Vórtice",
+  "item.terraforge_rpg.phoenix_blaster": "Disparador da Fênix",
+  "item.terraforge_rpg.uzi": "Uzi",
+  "item.terraforge_rpg.celebration_mk2": "Comemoração Mk2"
 }
