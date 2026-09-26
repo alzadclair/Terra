@@ -46,6 +46,9 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     private float yaw;
     private float lastAgeInTicks = 0.0f;
 
+    private com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshInstance instanceP1;
+    private com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshInstance instanceP2;
+
     public EyeOfCthulhuModel(ModelPart root) {
         this.root = root;
         this.skeleton = EyeOfCthulhuArmature.createArmature();
@@ -152,10 +155,23 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         float b = (color & 0xFF) / 255.0f;
 
         try {
-            com.terraforge.rpg.client.render.mesh.TerraSkinnedMesh skinnedMesh =
+            com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshData meshData =
                     com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.getOrLoad(skinLoc);
-            skinnedMesh.skin(skeleton);
-            skinnedMesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+            com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshInstance instance;
+            if (isPhase2) {
+                if (instanceP2 == null || instanceP2.getMeshData() != meshData) {
+                    instanceP2 = meshData.createInstance();
+                }
+                instance = instanceP2;
+            } else {
+                if (instanceP1 == null || instanceP1.getMeshData() != meshData) {
+                    instanceP1 = meshData.createInstance();
+                }
+                instance = instanceP1;
+            }
+
+            instance.skin(skeleton);
+            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
         } catch (Exception e) {
             // Fallback to static OBJ mesh if skin loading encounters an issue
             ResourceLocation meshLoc = isPhase2 ? MESH_P2 : MESH_P1;
