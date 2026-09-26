@@ -1,71 +1,41 @@
 package com.terraforge.rpg.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.terraforge.rpg.TerraForgeRPG;
 import com.terraforge.rpg.boss.hardmode.TheDestroyerEntity;
+import com.terraforge.rpg.client.render.mesh.TerraMesh3D;
+import com.terraforge.rpg.client.render.mesh.TerraMeshLoader;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 /**
- * 3D Model for The Destroyer mechanical boss.
- * Replaces the generic GhastModel placeholder with a mechanical segmented worm body,
- * glowing red probe socket core, and articulated steel mandibles.
+ * Authentic 3D Mesh Model for The Destroyer mechanical boss.
+ * Integrates real mechanical segment geometry from approved library (2576e274f05f4668bf2b8519d6789348).
+ * Completely eliminates the CubeListBuilder placeholder.
  */
 public class TheDestroyerModel extends HierarchicalModel<TheDestroyerEntity> {
+
+    public static final ResourceLocation MESH_LOCATION =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/the_destroyer.obj");
+
     private final ModelPart root;
-    private final ModelPart body;
-    private final ModelPart leftMandible;
-    private final ModelPart rightMandible;
-    private final ModelPart laserCore;
-    private final ModelPart spineCrest;
+    private float yaw;
+    private float pitch;
+    private float roll;
 
     public TheDestroyerModel(ModelPart root) {
         this.root = root;
-        this.body = root.getChild("body");
-        this.leftMandible = this.body.getChild("left_mandible");
-        this.rightMandible = this.body.getChild("right_mandible");
-        this.laserCore = this.body.getChild("laser_core");
-        this.spineCrest = this.body.getChild("spine_crest");
     }
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
-        PartDefinition rootPart = mesh.getRoot();
-
-        // Heavy Armored Cylinder Segment (16x16x16)
-        PartDefinition body = rootPart.addOrReplaceChild("body",
-                CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F)
-                        .texOffs(0, 32).addBox(-9.0F, -9.0F, -7.0F, 18.0F, 18.0F, 14.0F),
-                PartPose.offset(0.0F, 16.0F, 0.0F));
-
-        // Central Red Laser Core / Probe Socket
-        body.addOrReplaceChild("laser_core",
-                CubeListBuilder.create()
-                        .texOffs(32, 0).addBox(-3.0F, -3.0F, -10.0F, 6.0F, 6.0F, 3.0F),
-                PartPose.ZERO);
-
-        // Top Armored Spine Crest
-        body.addOrReplaceChild("spine_crest",
-                CubeListBuilder.create()
-                        .texOffs(40, 20).addBox(-2.0F, -12.0F, -6.0F, 4.0F, 4.0F, 12.0F),
-                PartPose.ZERO);
-
-        // Articulated Steel Mandibles
-        body.addOrReplaceChild("left_mandible",
-                CubeListBuilder.create()
-                        .texOffs(0, 24).addBox(-2.0F, -3.0F, -14.0F, 3.0F, 6.0F, 8.0F),
-                PartPose.offset(-7.0F, 0.0F, 0.0F));
-
-        body.addOrReplaceChild("right_mandible",
-                CubeListBuilder.create()
-                        .texOffs(0, 24).mirror().addBox(-1.0F, -3.0F, -14.0F, 3.0F, 6.0F, 8.0F),
-                PartPose.offset(7.0F, 0.0F, 0.0F));
-
-        return LayerDefinition.create(mesh, 64, 64);
+        return LayerDefinition.create(mesh, 16, 16);
     }
 
     @Override
@@ -75,16 +45,34 @@ public class TheDestroyerModel extends HierarchicalModel<TheDestroyerEntity> {
 
     @Override
     public void setupAnim(TheDestroyerEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.body.yRot = netHeadYaw * ((float) Math.PI / 180F);
-        this.body.xRot = headPitch * ((float) Math.PI / 180F);
+        this.yaw = (float) Math.toRadians(netHeadYaw);
+        this.pitch = (float) Math.toRadians(headPitch);
 
-        // Mandible drilling & clamping animation
-        float clamp = (float) Math.sin(ageInTicks * 0.35F) * 0.25F;
-        this.leftMandible.yRot = clamp;
-        this.rightMandible.yRot = -clamp;
+        // Sinusoidal mechanical body wave roll
+        this.roll = (float) Math.sin(ageInTicks * 0.2f) * 0.15f;
+    }
 
-        // Mechanical pulse
-        float pulse = (float) Math.sin(ageInTicks * 0.5F) * 0.05F;
-        this.laserCore.z = pulse;
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        poseStack.pushPose();
+
+        poseStack.translate(0.0, 1.0, 0.0);
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(-yaw, 0.0f, 1.0f, 0.0f)));
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(pitch, 1.0f, 0.0f, 0.0f)));
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(roll, 0.0f, 0.0f, 1.0f)));
+
+        float scale = 0.04f;
+        poseStack.scale(scale, scale, scale);
+
+        TerraMesh3D mesh = TerraMeshLoader.getOrLoad(MESH_LOCATION);
+
+        float a = ((color >> 24) & 0xFF) / 255.0f;
+        float r = ((color >> 16) & 0xFF) / 255.0f;
+        float g = ((color >> 8) & 0xFF) / 255.0f;
+        float b = (color & 0xFF) / 255.0f;
+
+        mesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+
+        poseStack.popPose();
     }
 }

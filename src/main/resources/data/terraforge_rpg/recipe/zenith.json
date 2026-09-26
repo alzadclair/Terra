@@ -9,6 +9,9 @@
       "item": "terraforge_rpg:meowmere"
     },
     {
+      "item": "terraforge_rpg:true_nights_edge"
+    },
+    {
       "item": "terraforge_rpg:seedler"
     },
     {
@@ -16,6 +19,12 @@
     },
     {
       "item": "terraforge_rpg:copper_shortsword"
+    },
+    {
+      "item": "minecraft:netherite_sword"
+    },
+    {
+      "item": "minecraft:nether_star"
     }
   ],
   "result": {

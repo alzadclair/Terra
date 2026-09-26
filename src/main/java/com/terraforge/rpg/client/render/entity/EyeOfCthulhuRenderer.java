@@ -13,8 +13,10 @@ import net.minecraft.resources.ResourceLocation;
  * Renderer for Eye of Cthulhu boss using Blockbench model with dynamic teeth jaws and optic tendrils.
  */
 public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfCthulhuModel> {
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "textures/entity/boss/eye_of_cthulhu.png");
+    private static final ResourceLocation TEXTURE_P1 =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "textures/entity/boss/eye_of_cthulhu_p1.png");
+    private static final ResourceLocation TEXTURE_P2 =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "textures/entity/boss/eye_of_cthulhu_p2.png");
 
     public EyeOfCthulhuRenderer(EntityRendererProvider.Context context) {
         super(context, new EyeOfCthulhuModel(context.bakeLayer(ModModelLayers.EYE_OF_CTHULHU)), 1.5F);
@@ -27,6 +29,6 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
 
     @Override
     public ResourceLocation getTextureLocation(EyeOfCthulhuEntity entity) {
-        return TEXTURE;
+        return entity.getCurrentPhase().phaseNumber() >= 2 ? TEXTURE_P2 : TEXTURE_P1;
     }
 }

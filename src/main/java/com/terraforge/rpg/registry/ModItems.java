@@ -16,6 +16,16 @@ import com.terraforge.rpg.item.weapon.TerrariaSummonStaffItem;
 import com.terraforge.rpg.item.weapon.TerrariaSwordItem;
 import com.terraforge.rpg.item.weapon.whip.TerrariaWhipItem;
 import com.terraforge.rpg.item.weapon.yoyo.TerrariaYoyoItem;
+import com.terraforge.rpg.item.weapon.ZenithItem;
+import com.terraforge.rpg.item.weapon.StarfuryItem;
+import com.terraforge.rpg.item.weapon.SeedlerItem;
+import com.terraforge.rpg.item.weapon.TrueNightsEdgeItem;
+import com.terraforge.rpg.item.weapon.BoomstickItem;
+import com.terraforge.rpg.item.weapon.PhoenixBlasterItem;
+import com.terraforge.rpg.item.weapon.UziItem;
+import com.terraforge.rpg.item.weapon.VortexBeaterItem;
+import com.terraforge.rpg.item.weapon.CelebrationMk2Item;
+import com.terraforge.rpg.item.weapon.DiamondStaffItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -383,6 +393,37 @@ public final class ModItems {
 
     public static final DeferredItem<com.terraforge.rpg.item.weapon.TsunamiBowItem> TSUNAMI = ITEMS.register("tsunami",
             () -> new com.terraforge.rpg.item.weapon.TsunamiBowItem(new Item.Properties().stacksTo(1)));
+
+    // 3D Weapons (Audited)
+    public static final DeferredItem<ZenithItem> ZENITH = ITEMS.register("zenith",
+            () -> new ZenithItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<StarfuryItem> STARFURY = ITEMS.register("starfury",
+            () -> new StarfuryItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<SeedlerItem> SEEDLER = ITEMS.register("seedler",
+            () -> new SeedlerItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<TrueNightsEdgeItem> TRUE_NIGHTS_EDGE = ITEMS.register("true_nights_edge",
+            () -> new TrueNightsEdgeItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<BoomstickItem> BOOMSTICK = ITEMS.register("boomstick",
+            () -> new BoomstickItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<PhoenixBlasterItem> PHOENIX_BLASTER = ITEMS.register("phoenix_blaster",
+            () -> new PhoenixBlasterItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<UziItem> UZI = ITEMS.register("uzi",
+            () -> new UziItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<VortexBeaterItem> VORTEX_BEATER = ITEMS.register("vortex_beater",
+            () -> new VortexBeaterItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<CelebrationMk2Item> CELEBRATION_MK2 = ITEMS.register("celebration_mk2",
+            () -> new CelebrationMk2Item(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<DiamondStaffItem> DIAMOND_STAFF = ITEMS.register("diamond_staff",
+            () -> new DiamondStaffItem(new Item.Properties().stacksTo(1)));
 
     // Block Items
     public static final DeferredItem<BlockItem> WORK_BENCH_ITEM = ITEMS.registerSimpleBlockItem(ModBlocks.WORK_BENCH);

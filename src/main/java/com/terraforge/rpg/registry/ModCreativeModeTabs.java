@@ -134,16 +134,26 @@ public final class ModCreativeModeTabs {
 
                         // Expanded Arsenal: Weapons & Accessories
                         output.accept(ModItems.NIGHTS_EDGE.get());
+                        output.accept(ModItems.TRUE_NIGHTS_EDGE.get());
                         output.accept(ModItems.EXCALIBUR.get());
                         output.accept(ModItems.TERRA_BLADE.get());
+                        output.accept(ModItems.STARFURY.get());
+                        output.accept(ModItems.SEEDLER.get());
+                        output.accept(ModItems.MEOWMERE.get());
+                        output.accept(ModItems.ZENITH.get());
+                        output.accept(ModItems.BOOMSTICK.get());
+                        output.accept(ModItems.PHOENIX_BLASTER.get());
                         output.accept(ModItems.MINISHARK.get());
                         output.accept(ModItems.MEGASHARK.get());
+                        output.accept(ModItems.UZI.get());
+                        output.accept(ModItems.VORTEX_BEATER.get());
+                        output.accept(ModItems.CELEBRATION_MK2.get());
                         output.accept(ModItems.WATER_BOLT.get());
                         output.accept(ModItems.SPACE_GUN.get());
+                        output.accept(ModItems.DIAMOND_STAFF.get());
                         output.accept(ModItems.HERMES_BOOTS.get());
                         output.accept(ModItems.BAND_OF_REGENERATION.get());
                         output.accept(ModItems.TERRASPARK_BOOTS.get());
-                        output.accept(ModItems.MEOWMERE.get());
                         output.accept(ModItems.TSUNAMI.get());
 
                         // Crafting Stations & Blocks

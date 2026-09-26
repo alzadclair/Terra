@@ -1,70 +1,41 @@
 package com.terraforge.rpg.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.terraforge.rpg.TerraForgeRPG;
+import com.terraforge.rpg.client.render.mesh.TerraMesh3D;
+import com.terraforge.rpg.client.render.mesh.TerraMeshLoader;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 /**
- * Blockbench-modeled Duke Fishron boss.
- * Mutant aquatic pig-shark-dragon with tusks, dorsal fins, webbed wings, and shark tail.
+ * Authentic 3D Mesh Model for Duke Fishron mutant aquatic boss.
+ * Integrates real 3D geometry from approved library (092fa2ee41d64192836228a61bd8659b / 316eee44fd0e45d5a0c8374c43c21e9b).
+ * Completely eliminates the CubeListBuilder placeholder.
  */
 public class DukeFishronModel<T extends Entity> extends HierarchicalModel<T> {
+
+    public static final ResourceLocation MESH_LOCATION =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/duke_fishron.obj");
+
     private final ModelPart root;
-    private final ModelPart body;
-    private final ModelPart snout;
-    private final ModelPart leftWing;
-    private final ModelPart rightWing;
-    private final ModelPart tail;
+    private float yaw;
+    private float pitch;
+    private float swimRoll;
 
     public DukeFishronModel(ModelPart root) {
         this.root = root;
-        this.body = root.getChild("body");
-        this.snout = this.body.getChild("snout");
-        this.leftWing = this.body.getChild("left_wing");
-        this.rightWing = this.body.getChild("right_wing");
-        this.tail = this.body.getChild("tail");
     }
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
-        PartDefinition rootPart = mesh.getRoot();
-
-        // Massive shark-pig torso
-        PartDefinition body = rootPart.addOrReplaceChild("body",
-                CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-7.0F, -7.0F, -10.0F, 14.0F, 14.0F, 20.0F)
-                        .texOffs(0, 34).addBox(-1.0F, -14.0F, -4.0F, 2.0F, 7.0F, 10.0F), // Dorsal fin
-                PartPose.offset(0.0F, 14.0F, 0.0F));
-
-        // Pig snout with sharp tusks
-        body.addOrReplaceChild("snout",
-                CubeListBuilder.create()
-                        .texOffs(48, 0).addBox(-4.0F, -2.0F, -15.0F, 8.0F, 6.0F, 5.0F)
-                        .texOffs(48, 12).addBox(-5.0F, 0.0F, -13.0F, 2.0F, 4.0F, 2.0F) // Left tusk
-                        .texOffs(48, 12).mirror().addBox(3.0F, 0.0F, -13.0F, 2.0F, 4.0F, 2.0F), // Right tusk
-                PartPose.ZERO);
-
-        // Dragon/Aquatic Webbed Wings
-        body.addOrReplaceChild("left_wing",
-                CubeListBuilder.create().texOffs(24, 34).addBox(7.0F, -2.0F, -4.0F, 16.0F, 1.0F, 12.0F),
-                PartPose.ZERO);
-        body.addOrReplaceChild("right_wing",
-                CubeListBuilder.create().texOffs(24, 34).mirror().addBox(-23.0F, -2.0F, -4.0F, 16.0F, 1.0F, 12.0F),
-                PartPose.ZERO);
-
-        // Shark Tail and Fluke
-        body.addOrReplaceChild("tail",
-                CubeListBuilder.create()
-                        .texOffs(0, 52).addBox(-3.0F, -3.0F, 10.0F, 6.0F, 6.0F, 10.0F)
-                        .texOffs(32, 52).addBox(-1.0F, -7.0F, 18.0F, 2.0F, 14.0F, 8.0F), // Fin fluke
-                PartPose.ZERO);
-
-        return LayerDefinition.create(mesh, 128, 128);
+        return LayerDefinition.create(mesh, 16, 16);
     }
 
     @Override
@@ -74,15 +45,34 @@ public class DukeFishronModel<T extends Entity> extends HierarchicalModel<T> {
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.body.yRot = netHeadYaw * ((float)Math.PI / 180F);
-        this.body.xRot = headPitch * ((float)Math.PI / 180F);
+        this.yaw = (float) Math.toRadians(netHeadYaw);
+        this.pitch = (float) Math.toRadians(headPitch);
 
-        // Flapping aquatic wings
-        float wingFlap = (float) Math.sin(ageInTicks * 0.4F) * 0.4F;
-        this.leftWing.zRot = wingFlap;
-        this.rightWing.zRot = -wingFlap;
+        // Sinusoidal aerial swim roll & wing flap bank
+        this.swimRoll = (float) Math.sin(ageInTicks * 0.35f) * 0.12f;
+    }
 
-        // Tail waggle
-        this.tail.yRot = (float) Math.sin(ageInTicks * 0.3F) * 0.35F;
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        poseStack.pushPose();
+
+        poseStack.translate(0.0, 1.2, 0.0);
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(-yaw, 0.0f, 1.0f, 0.0f)));
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(pitch, 1.0f, 0.0f, 0.0f)));
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(swimRoll, 0.0f, 0.0f, 1.0f)));
+
+        float scale = 0.04f;
+        poseStack.scale(scale, scale, scale);
+
+        TerraMesh3D mesh = TerraMeshLoader.getOrLoad(MESH_LOCATION);
+
+        float a = ((color >> 24) & 0xFF) / 255.0f;
+        float r = ((color >> 16) & 0xFF) / 255.0f;
+        float g = ((color >> 8) & 0xFF) / 255.0f;
+        float b = (color & 0xFF) / 255.0f;
+
+        mesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+
+        poseStack.popPose();
     }
 }

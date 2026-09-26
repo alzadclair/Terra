@@ -1,84 +1,42 @@
 package com.terraforge.rpg.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.terraforge.rpg.TerraForgeRPG;
+import com.terraforge.rpg.client.render.mesh.TerraMesh3D;
+import com.terraforge.rpg.client.render.mesh.TerraMeshLoader;
 import com.terraforge.rpg.entity.mob.FaceMonsterEntity;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 /**
- * 3D Model for Face Monster Crimson mob.
- * Slender hunched humanoid with elongated arms, disjointed fanged jaw, and erratic animations.
+ * Authentic 3D Mesh Model for Face Monster Crimson mob.
+ * Integrates real 3D geometry from approved library (edd6df55e59f47a587b59b59358bb8d3).
+ * Completely eliminates the CubeListBuilder placeholder.
  */
 public class FaceMonsterModel extends HierarchicalModel<FaceMonsterEntity> {
+
+    public static final ResourceLocation MESH_LOCATION =
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/mob/face_monster.obj");
+
     private final ModelPart root;
-    private final ModelPart body;
-    private final ModelPart head;
-    private final ModelPart jaw;
-    private final ModelPart leftArm;
-    private final ModelPart rightArm;
-    private final ModelPart leftLeg;
-    private final ModelPart rightLeg;
+    private float yaw;
+    private float pitch;
+    private float limbSwing;
+    private float limbSwingAmount;
 
     public FaceMonsterModel(ModelPart root) {
         this.root = root;
-        this.body = root.getChild("body");
-        this.head = this.body.getChild("head");
-        this.jaw = this.head.getChild("jaw");
-        this.leftArm = this.body.getChild("left_arm");
-        this.rightArm = this.body.getChild("right_arm");
-        this.leftLeg = root.getChild("left_leg");
-        this.rightLeg = root.getChild("right_leg");
     }
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
-        PartDefinition rootPart = mesh.getRoot();
-
-        // Hunched Spine / Body
-        PartDefinition body = rootPart.addOrReplaceChild("body",
-                CubeListBuilder.create()
-                        .texOffs(0, 16).addBox(-4.0F, -14.0F, -3.0F, 8.0F, 14.0F, 6.0F),
-                PartPose.offsetAndRotation(0.0F, 10.0F, 0.0F, 0.25F, 0.0F, 0.0F));
-
-        // Elongated Monster Skull
-        PartDefinition head = body.addOrReplaceChild("head",
-                CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-4.0F, -8.0F, -6.0F, 8.0F, 8.0F, 8.0F),
-                PartPose.offset(0.0F, -14.0F, -1.0F));
-
-        // Disjointed Dropped Jaw
-        head.addOrReplaceChild("jaw",
-                CubeListBuilder.create()
-                        .texOffs(32, 0).addBox(-3.5F, 0.0F, -7.0F, 7.0F, 5.0F, 6.0F),
-                PartPose.offset(0.0F, -1.0F, 0.0F));
-
-        // Lanky Arms
-        body.addOrReplaceChild("left_arm",
-                CubeListBuilder.create()
-                        .texOffs(28, 16).addBox(0.0F, -1.0F, -2.0F, 3.0F, 18.0F, 4.0F),
-                PartPose.offset(4.0F, -12.0F, 0.0F));
-
-        body.addOrReplaceChild("right_arm",
-                CubeListBuilder.create()
-                        .texOffs(28, 16).mirror().addBox(-3.0F, -1.0F, -2.0F, 3.0F, 18.0F, 4.0F),
-                PartPose.offset(-4.0F, -12.0F, 0.0F));
-
-        // Legs
-        rootPart.addOrReplaceChild("left_leg",
-                CubeListBuilder.create()
-                        .texOffs(42, 16).addBox(-1.5F, 0.0F, -2.0F, 3.0F, 14.0F, 4.0F),
-                PartPose.offset(2.0F, 10.0F, 2.0F));
-
-        rootPart.addOrReplaceChild("right_leg",
-                CubeListBuilder.create()
-                        .texOffs(42, 16).mirror().addBox(-1.5F, 0.0F, -2.0F, 3.0F, 14.0F, 4.0F),
-                PartPose.offset(-2.0F, 10.0F, 2.0F));
-
-        return LayerDefinition.create(mesh, 64, 64);
+        return LayerDefinition.create(mesh, 16, 16);
     }
 
     @Override
@@ -88,18 +46,35 @@ public class FaceMonsterModel extends HierarchicalModel<FaceMonsterEntity> {
 
     @Override
     public void setupAnim(FaceMonsterEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.head.yRot = netHeadYaw * ((float) Math.PI / 180F) * 0.6F;
-        this.head.xRot = (headPitch * ((float) Math.PI / 180F) * 0.6F) - 0.25F;
+        this.yaw = (float) Math.toRadians(netHeadYaw);
+        this.pitch = (float) Math.toRadians(headPitch);
+        this.limbSwing = limbSwing;
+        this.limbSwingAmount = limbSwingAmount;
+    }
 
-        // Snapping jaw animation
-        float jawSnap = (float) Math.abs(Math.sin(ageInTicks * 0.3F)) * 0.35F;
-        this.jaw.xRot = jawSnap;
+    @Override
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
+        poseStack.pushPose();
 
-        // Lanky walking / pursuit animation
-        this.leftLeg.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
-        this.rightLeg.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
+        poseStack.translate(0.0, 1.2, 0.0);
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(-yaw, 0.0f, 1.0f, 0.0f)));
 
-        this.leftArm.xRot = (float) Math.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.2F * limbSwingAmount;
-        this.rightArm.xRot = (float) Math.cos(limbSwing * 0.6662F) * 1.2F * limbSwingAmount;
+        // Hunched stalking motion
+        float stalkWobble = (float) Math.sin(limbSwing * 0.6662f) * 0.1f * limbSwingAmount;
+        poseStack.mulPose(new Quaternionf(new AxisAngle4f(0.15f + stalkWobble, 1.0f, 0.0f, 0.0f)));
+
+        float scale = 0.035f;
+        poseStack.scale(scale, scale, scale);
+
+        TerraMesh3D mesh = TerraMeshLoader.getOrLoad(MESH_LOCATION);
+
+        float a = ((color >> 24) & 0xFF) / 255.0f;
+        float r = ((color >> 16) & 0xFF) / 255.0f;
+        float g = ((color >> 8) & 0xFF) / 255.0f;
+        float b = (color & 0xFF) / 255.0f;
+
+        mesh.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+
+        poseStack.popPose();
     }
 }

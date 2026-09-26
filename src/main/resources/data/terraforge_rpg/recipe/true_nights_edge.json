@@ -6,7 +6,13 @@
       "item": "terraforge_rpg:nights_edge"
     },
     {
-      "item": "minecraft:nether_star"
+      "item": "terraforge_rpg:soul_of_fright"
+    },
+    {
+      "item": "terraforge_rpg:soul_of_might"
+    },
+    {
+      "item": "terraforge_rpg:soul_of_sight"
     }
   ],
   "result": {
