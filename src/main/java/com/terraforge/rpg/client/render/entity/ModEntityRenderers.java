@@ -92,5 +92,14 @@ public final class ModEntityRenderers {
                 ctx -> new BossGenericRenderer<>(ctx, new MoonLordModel(ctx.bakeLayer(ModModelLayers.MOON_LORD)), 4.0F, "textures/entity/boss/moon_lord.png", 4.0F));
     }
 
+    public static void addLayers(EntityRenderersEvent.AddLayers event) {
+        for (net.minecraft.client.resources.PlayerSkin.Model model : event.getSkins()) {
+            net.minecraft.client.renderer.entity.player.PlayerRenderer renderer = event.getSkin(model);
+            if (renderer != null) {
+                renderer.addLayer(new com.terraforge.rpg.client.render.entity.layer.PhoenixWingsLayer(renderer, event.getContext().getModelSet()));
+            }
+        }
+    }
+
     private ModEntityRenderers() {}
 }

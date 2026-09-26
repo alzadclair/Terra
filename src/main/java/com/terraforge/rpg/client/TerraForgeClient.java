@@ -24,6 +24,7 @@ public final class TerraForgeClient {
         modBus.addListener(TerraHudOverlay::register);
         modBus.addListener(ModEntityRenderers::registerLayerDefinitions);
         modBus.addListener(ModEntityRenderers::registerEntityRenderers);
+        modBus.addListener(ModEntityRenderers::addLayers);
         modBus.addListener(TerraForgeClient::onRegisterReloadListeners);
 
         // Register client game bus listeners
