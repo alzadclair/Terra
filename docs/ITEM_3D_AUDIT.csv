@@ -1,0 +1,122 @@
+item_id,dimension,format,batch,elements_count,poly_faces,status,notes
+adamantite_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+arcane_prism,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+ash_block,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+band_of_regeneration,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+beetle_husk,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+blood_crystal,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+boomstick,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+celebration_mk2,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+celestial_sigil,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+cobalt_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+copper_boots,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+copper_chestplate,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (chestplate) with isometric display matrices
+copper_coin,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+copper_helmet,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (helmet) with isometric display matrices
+copper_leggings,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (leggings) with isometric display matrices
+copper_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+copper_shortsword,3D,JSON_ELEMENTS,Armas 3D,4,24,CONVERTED_3D,Volumetric 3D geometry (sword) with isometric display matrices
+crimson_altar,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+crimson_boots,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+crimson_greaves,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (leggings) with isometric display matrices
+crimson_helmet,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (helmet) with isometric display matrices
+crimson_scalemail,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (chestplate) with isometric display matrices
+crimstone_block,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+demon_altar,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+diamond_staff,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+ebonstone_block,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+enchanted_nightcrawler,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+excalibur,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+flaming_arrow,3D,JSON_ELEMENTS,Lote C - Munições,4,24,CONVERTED_3D,Volumetric 3D geometry (arrow) with isometric display matrices
+gold_coin,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+golden_crate,3D,JSON_ELEMENTS,Lote D - Utilitários,3,18,CONVERTED_3D,Volumetric 3D geometry (crate) with isometric display matrices
+golden_fishing_rod,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (tool) with isometric display matrices
+grappling_hook,3D,JSON_ELEMENTS,Lote D - Utilitários,4,24,CONVERTED_3D,Volumetric 3D geometry (hook) with isometric display matrices
+gravity_sigil,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+guardian_seal,3D,JSON_ELEMENTS,Lote B - Special Accessories,3,18,CONVERTED_3D,Volumetric 3D geometry (accessory) with isometric display matrices
+guide_voodoo_doll,3D,JSON_ELEMENTS,Lote A - Progressão Core,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+hallowed_bar,3D,JSON_ELEMENTS,Lote A - Progressão Core,2,12,CONVERTED_3D,Volumetric 3D geometry (ingot) with isometric display matrices
+hellstone_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+hermes_boots,3D,JSON_ELEMENTS,Lote B - Special Accessories,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+iron_crate,3D,JSON_ELEMENTS,Lote D - Utilitários,3,18,CONVERTED_3D,Volumetric 3D geometry (crate) with isometric display matrices
+ivy_whip,3D,JSON_ELEMENTS,Lote D - Utilitários,4,24,CONVERTED_3D,Volumetric 3D geometry (hook) with isometric display matrices
+jester_arrow,3D,JSON_ELEMENTS,Lote C - Munições,4,24,CONVERTED_3D,Volumetric 3D geometry (arrow) with isometric display matrices
+leather_whip,3D,JSON_ELEMENTS,Armas 3D,2,12,CONVERTED_3D,Volumetric 3D geometry (whip) with isometric display matrices
+lesser_mana_potion,3D,JSON_ELEMENTS,Lote A - Progressão Core,4,24,CONVERTED_3D,Volumetric 3D geometry (potion) with isometric display matrices
+life_crystal,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+life_fruit,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+lihzahrd_power_cell,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+luminite_bar,3D,JSON_ELEMENTS,Lote A - Progressão Core,2,12,CONVERTED_3D,Volumetric 3D geometry (ingot) with isometric display matrices
+luminite_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+magic_mirror,3D,JSON_ELEMENTS,Lote A - Progressão Core,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+mana_crystal,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+mana_potion,3D,JSON_ELEMENTS,Lote A - Progressão Core,4,24,CONVERTED_3D,Volumetric 3D geometry (potion) with isometric display matrices
+master_bait,3D,JSON_ELEMENTS,Lote D - Utilitários,4,24,CONVERTED_3D,Volumetric 3D geometry (potion) with isometric display matrices
+mechanical_eye,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+mechanical_skull,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+mechanical_worm,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+megashark,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+meowmere,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+meteor_shot,3D,JSON_ELEMENTS,Lote C - Munições,3,18,CONVERTED_3D,Volumetric 3D geometry (bullet) with isometric display matrices
+minishark,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+molten_boots,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+molten_breastplate,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (chestplate) with isometric display matrices
+molten_greaves,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (leggings) with isometric display matrices
+molten_helmet,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (helmet) with isometric display matrices
+monarch_butterfly,3D,JSON_ELEMENTS,Lote D - Utilitários,5,30,CONVERTED_3D,Volumetric 3D geometry (wings) with isometric display matrices
+musket_ball,3D,JSON_ELEMENTS,Lote C - Munições,3,18,CONVERTED_3D,Volumetric 3D geometry (bullet) with isometric display matrices
+mythril_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+nights_edge,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+orichalcum_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+palladium_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+phoenix_blaster,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+phoenix_wings,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (wings) with isometric display matrices
+platinum_coin,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+portal_gun,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (tool) with isometric display matrices
+predator_eye,3D,JSON_ELEMENTS,Lote B - Special Accessories,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+pwnhammer,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (tool) with isometric display matrices
+ranger_emblem,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+reinforced_fishing_pole,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (tool) with isometric display matrices
+seedler,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+shadow_boots,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+shadow_greaves,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (leggings) with isometric display matrices
+shadow_helmet,3D,JSON_ELEMENTS,Lote E - Armaduras,2,12,CONVERTED_3D,Volumetric 3D geometry (helmet) with isometric display matrices
+shadow_scalemail,3D,JSON_ELEMENTS,Lote E - Armaduras,3,18,CONVERTED_3D,Volumetric 3D geometry (chestplate) with isometric display matrices
+silver_coin,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+slime_crown,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+slime_staff,3D,JSON_ELEMENTS,Armas 3D,3,18,CONVERTED_3D,Volumetric 3D geometry (staff) with isometric display matrices
+slimy_saddle,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+sorcerer_emblem,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+soul_of_fright,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (soul) with isometric display matrices
+soul_of_might,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (soul) with isometric display matrices
+soul_of_sight,3D,JSON_ELEMENTS,Lote A - Progressão Core,5,30,CONVERTED_3D,Volumetric 3D geometry (soul) with isometric display matrices
+space_gun,3D,JSON_ELEMENTS,Armas 3D,3,18,CONVERTED_3D,Volumetric 3D geometry (bullet) with isometric display matrices
+starfury,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+summoner_emblem,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+suspicious_looking_eye,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (boss_summon) with isometric display matrices
+temple_key,3D,JSON_ELEMENTS,Lote A - Progressão Core,3,18,CONVERTED_3D,Volumetric 3D geometry (key) with isometric display matrices
+terra_blade,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+terraspark_boots,3D,JSON_ELEMENTS,Lote B - Special Accessories,2,12,CONVERTED_3D,Volumetric 3D geometry (boots) with isometric display matrices
+thunder_fragment,3D,JSON_ELEMENTS,Lote B - Special Accessories,3,18,CONVERTED_3D,Volumetric 3D geometry (accessory) with isometric display matrices
+time_gear,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+tin_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+titan_core,3D,JSON_ELEMENTS,Lote B - Special Accessories,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+titanium_ore,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+true_nights_edge,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+truffle_worm,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+tsunami,3D,JSON_ELEMENTS,Armas 3D,4,24,CONVERTED_3D,Volumetric 3D geometry (bow) with isometric display matrices
+unholy_arrow,3D,JSON_ELEMENTS,Lote C - Munições,4,24,CONVERTED_3D,Volumetric 3D geometry (arrow) with isometric display matrices
+uzi,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+void_heart,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (crystal_heart) with isometric display matrices
+vortex_beater,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)
+wand_of_sparking,3D,JSON_ELEMENTS,Armas 3D,3,18,CONVERTED_3D,Volumetric 3D geometry (staff) with isometric display matrices
+warrior_emblem,3D,JSON_ELEMENTS,Lote B - Special Accessories,5,30,CONVERTED_3D,Volumetric 3D geometry (coin) with isometric display matrices
+water_bolt,3D,JSON_ELEMENTS,Armas 3D,2,12,CONVERTED_3D,Volumetric 3D geometry (spellbook) with isometric display matrices
+wood_fishing_pole,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (tool) with isometric display matrices
+wooden_arrow,3D,JSON_ELEMENTS,Lote C - Munições,4,24,CONVERTED_3D,Volumetric 3D geometry (arrow) with isometric display matrices
+wooden_bow,3D,JSON_ELEMENTS,Armas 3D,4,24,CONVERTED_3D,Volumetric 3D geometry (bow) with isometric display matrices
+wooden_crate,3D,JSON_ELEMENTS,Lote D - Utilitários,3,18,CONVERTED_3D,Volumetric 3D geometry (crate) with isometric display matrices
+wooden_yoyo,3D,JSON_ELEMENTS,Armas 3D,3,18,CONVERTED_3D,Volumetric 3D geometry (yoyo) with isometric display matrices
+work_bench,3D,JSON_BLOCK_CHILD,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (JSON_BLOCK_CHILD)
+worm,3D,JSON_ELEMENTS,Lote D - Utilitários,2,12,CONVERTED_3D,Volumetric 3D geometry (artifact) with isometric display matrices
+zenith,3D,OBJ_MESH,Armas e Blocos 3D,0,0,APPROVED_3D,Existing approved 3D model (OBJ_MESH)

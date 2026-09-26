@@ -1,6 +1,343 @@
 {
-  "parent": "minecraft:item/generated",
+  "credit": "TerraForge RPG 3D Volumetric Engine",
   "textures": {
-    "layer0": "terraforge_rpg:item/wooden_bow"
+    "layer0": "terraforge_rpg:item/wooden_bow",
+    "particle": "terraforge_rpg:item/wooden_bow"
+  },
+  "elements": [
+    {
+      "name": "bow_riser",
+      "from": [
+        7.0,
+        6.0,
+        7.0
+      ],
+      "to": [
+        9.0,
+        10.0,
+        9.0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            7,
+            6,
+            9,
+            10
+          ],
+          "texture": "#layer0"
+        },
+        "south": {
+          "uv": [
+            7,
+            6,
+            9,
+            10
+          ],
+          "texture": "#layer0"
+        },
+        "east": {
+          "uv": [
+            7,
+            6,
+            9,
+            10
+          ],
+          "texture": "#layer0"
+        },
+        "west": {
+          "uv": [
+            7,
+            6,
+            9,
+            10
+          ],
+          "texture": "#layer0"
+        }
+      }
+    },
+    {
+      "name": "upper_limb",
+      "from": [
+        6.5,
+        10.0,
+        7.0
+      ],
+      "to": [
+        8.5,
+        15.0,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            1,
+            9,
+            6
+          ],
+          "texture": "#layer0"
+        },
+        "south": {
+          "uv": [
+            6,
+            1,
+            9,
+            6
+          ],
+          "texture": "#layer0"
+        },
+        "east": {
+          "uv": [
+            7,
+            1,
+            8,
+            6
+          ],
+          "texture": "#layer0"
+        },
+        "west": {
+          "uv": [
+            7,
+            1,
+            8,
+            6
+          ],
+          "texture": "#layer0"
+        },
+        "up": {
+          "uv": [
+            6,
+            7,
+            9,
+            8
+          ],
+          "texture": "#layer0"
+        }
+      }
+    },
+    {
+      "name": "lower_limb",
+      "from": [
+        6.5,
+        1.0,
+        7.0
+      ],
+      "to": [
+        8.5,
+        6.0,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            10,
+            9,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "south": {
+          "uv": [
+            6,
+            10,
+            9,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "east": {
+          "uv": [
+            7,
+            10,
+            8,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "west": {
+          "uv": [
+            7,
+            10,
+            8,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "down": {
+          "uv": [
+            6,
+            7,
+            9,
+            8
+          ],
+          "texture": "#layer0"
+        }
+      }
+    },
+    {
+      "name": "bowstring",
+      "from": [
+        9.0,
+        1.5,
+        7.75
+      ],
+      "to": [
+        9.5,
+        14.5,
+        8.25
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            9,
+            1,
+            10,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "south": {
+          "uv": [
+            9,
+            1,
+            10,
+            15
+          ],
+          "texture": "#layer0"
+        },
+        "east": {
+          "uv": [
+            7,
+            1,
+            8,
+            15
+          ],
+          "texture": "#layer0"
+        }
+      }
+    }
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        55
+      ],
+      "translation": [
+        0,
+        4.0,
+        0.5
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -55
+      ],
+      "translation": [
+        0,
+        4.0,
+        0.5
+      ],
+      "scale": [
+        0.85,
+        0.85,
+        0.85
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -90,
+        25
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        90,
+        -25
+      ],
+      "translation": [
+        1.13,
+        3.2,
+        1.13
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        2.0,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
   }
 }
