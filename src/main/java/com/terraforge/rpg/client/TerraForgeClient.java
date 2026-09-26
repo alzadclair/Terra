@@ -40,8 +40,8 @@ public final class TerraForgeClient {
     private static void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) (ResourceManager resourceManager) -> {
             TerraMeshLoader.clearCache();
-            com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.clearCache();
-            TerraLogger.info("CLIENT", "Cleared 3D mesh and animation caches on resource reload (F3+T).");
+            com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.preload(resourceManager);
+            TerraLogger.info("CLIENT", "Reloaded and preloaded 3D skinned mesh caches on resource reload (F3+T).");
         });
     }
 

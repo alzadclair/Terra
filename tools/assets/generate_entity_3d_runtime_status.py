@@ -357,6 +357,26 @@ ENTITIES = [
 def main():
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
     out_csv = DOCS_DIR / "ENTITY_3D_RUNTIME_STATUS.csv"
+
+    # Verify dynamically against ModEntities.java
+    mod_entities_file = PROJECT_ROOT / "src/main/java/com/terraforge/rpg/registry/ModEntities.java"
+    registered_ids = set()
+    if mod_entities_file.exists():
+        import re
+        content = mod_entities_file.read_text(encoding="utf-8")
+        for match in re.finditer(r'ENTITIES\.register\("([^"]+)"', content):
+            registered_ids.add("terraforge_rpg:" + match.group(1))
+
+    cataloged_ids = {e["entity_id"] for e in ENTITIES}
+    missing = registered_ids - cataloged_ids
+    if missing:
+        print(f"Warning: {len(missing)} registered entities not in catalog: {missing}")
+
+    status_counts = {}
+    for e in ENTITIES:
+        st = e["status"]
+        status_counts[st] = status_counts.get(st, 0) + 1
+
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=[
             "entity_id", "name", "category", "renderer", "model_type",
@@ -365,7 +385,11 @@ def main():
         writer.writeheader()
         for row in ENTITIES:
             writer.writerow(row)
-    print(f"Generated {out_csv} with {len(ENTITIES)} entities (100% 3D).")
+
+    integrated = sum(count for st, count in status_counts.items() if "INTEGRATED" in st)
+    placeholder = status_counts.get("PLACEHOLDER_3D", 0)
+    blocked = status_counts.get("BLOCKED_ASSET", 0)
+    print(f"Generated {out_csv} with {len(ENTITIES)} entities ({integrated} integrated, {placeholder} placeholder, {blocked} blocked).")
 
 if __name__ == "__main__":
     main()
