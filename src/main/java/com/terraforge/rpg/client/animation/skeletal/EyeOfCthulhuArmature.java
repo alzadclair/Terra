@@ -49,40 +49,43 @@ public final class EyeOfCthulhuArmature {
         pupil.setBindPose(0.0f, 0.0f, 0.05f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         Bone opticBack = new Bone("optic_back", body);
-        opticBack.setBindPose(0.0f, 0.0f, -0.4f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        opticBack.setBindPose(0.0f, -222.278f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         Bone jawRoot = new Bone("jaw_root", body);
-        jawRoot.setBindPose(0.0f, 0.0f, 0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        jawRoot.setBindPose(0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
+        // Authentic upper jaw hinge pivot from GLTF: [0.018, 12.302, 0.144]
         Bone upperJaw = new Bone("upper_jaw", jawRoot);
-        upperJaw.setBindPose(0.0f, 0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        upperJaw.setBindPose(0.018f, 12.302f, 0.144f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         Bone teethUpper = new Bone("teeth_upper", upperJaw);
-        teethUpper.setBindPose(0.0f, -0.05f, 0.05f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        teethUpper.setBindPose(0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
+        // Authentic lower jaw hinge pivot from GLTF: [0.018, 10.149, -4.324]
         Bone lowerJaw = new Bone("lower_jaw", jawRoot);
-        lowerJaw.setBindPose(0.0f, -0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        lowerJaw.setBindPose(0.018f, 10.149f, -4.324f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         Bone teethLower = new Bone("teeth_lower", lowerJaw);
-        teethLower.setBindPose(0.0f, 0.05f, 0.05f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        teethLower.setBindPose(0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril1 = new Bone("tendril_01", opticBack);
-        tendril1.setBindPose(-0.3f, 0.2f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        // Authentic tendril base pivots from GLTF (all trailing bases at Y = 247.499)
+        Bone tendril1 = new Bone("tendril_01", body);
+        tendril1.setBindPose(1.544f, 247.499f, 87.141f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril2 = new Bone("tendril_02", opticBack);
-        tendril2.setBindPose(0.3f, 0.2f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        Bone tendril2 = new Bone("tendril_02", body);
+        tendril2.setBindPose(-83.905f, 247.499f, -0.993f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril3 = new Bone("tendril_03", opticBack);
-        tendril3.setBindPose(-0.35f, -0.1f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        Bone tendril3 = new Bone("tendril_03", body);
+        tendril3.setBindPose(-25.397f, 247.499f, -79.170f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril4 = new Bone("tendril_04", opticBack);
-        tendril4.setBindPose(0.35f, -0.1f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        Bone tendril4 = new Bone("tendril_04", body);
+        tendril4.setBindPose(68.315f, 247.499f, -76.759f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril5 = new Bone("tendril_05", opticBack);
-        tendril5.setBindPose(-0.15f, -0.3f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        Bone tendril5 = new Bone("tendril_05", body);
+        tendril5.setBindPose(78.023f, 247.499f, 51.949f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
-        Bone tendril6 = new Bone("tendril_06", opticBack);
-        tendril6.setBindPose(0.15f, -0.3f, -0.2f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
+        Bone tendril6 = new Bone("tendril_06", body);
+        tendril6.setBindPose(74.930f, 438.405f, 50.909f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         return new Skeleton(root);
     }
