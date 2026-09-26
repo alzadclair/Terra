@@ -67,29 +67,29 @@ public final class ModItems {
             () -> new TerrariaWhipItem(new Item.Properties().stacksTo(1),
                     TerrariaRarity.WHITE, 10_000L, 14.0, 4.0, 1.0, 30, 4.5, 4));
 
-    // Ammunition (Arrows and Bullets)
+    // Ammunition (Arrows and Bullets) - capped at 99 to fit Minecraft 1.21.1 network codec [1; 99]
     public static final DeferredItem<TerrariaAmmoItem> WOODEN_ARROW = ITEMS.register("wooden_arrow",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.ARROW, TerrariaRarity.WHITE, 1L, 4.0, 1.0, 2.0, 0, 0));
 
     public static final DeferredItem<TerrariaAmmoItem> FLAMING_ARROW = ITEMS.register("flaming_arrow",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.ARROW, TerrariaRarity.WHITE, 2L, 7.0, 1.0, 2.0, 0, 0));
 
     public static final DeferredItem<TerrariaAmmoItem> JESTER_ARROW = ITEMS.register("jester_arrow",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.ARROW, TerrariaRarity.WHITE, 10L, 9.0, 1.1, 4.0, 999, 0));
 
     public static final DeferredItem<TerrariaAmmoItem> UNHOLY_ARROW = ITEMS.register("unholy_arrow",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.ARROW, TerrariaRarity.BLUE, 8L, 12.0, 1.1, 3.0, 5, 0));
 
     public static final DeferredItem<TerrariaAmmoItem> MUSKET_BALL = ITEMS.register("musket_ball",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.BULLET, TerrariaRarity.WHITE, 7L, 7.0, 1.5, 2.0, 0, 0));
 
     public static final DeferredItem<TerrariaAmmoItem> METEOR_SHOT = ITEMS.register("meteor_shot",
-            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(999),
+            () -> new TerrariaAmmoItem(new Item.Properties().stacksTo(99),
                     AmmoType.BULLET, TerrariaRarity.GREEN, 16L, 9.0, 1.5, 2.0, 1, 1));
 
     // Boss Summoning Items
