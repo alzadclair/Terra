@@ -130,12 +130,53 @@ def validate_models_and_textures(registered_items, registered_blocks):
     errors = []
     warnings = []
 
-    # Check for absolute path leaks in all json files in assets
-    for json_file in ASSETS_DIR.rglob("*.json"):
-        with open(json_file, "r", encoding="utf-8", errors="ignore") as jf:
-            content = jf.read()
-            if "C:\\" in content or "c:/" in content or "C:/" in content:
-                errors.append(f"Absolute path found in runtime asset: {json_file.relative_to(PROJECT_ROOT)}")
+    # Check for absolute path leaks in all runtime assets (.json, .obj, .mtl, .txt, .geo, .animation)
+    forbidden_tokens = ["C:\\", "C:/", "c:\\", "c:/", "Users\\", "Users/", "Desktop\\", "Desktop/", "model 3d", "model 3d/"]
+    for asset_file in ASSETS_DIR.rglob("*"):
+        if asset_file.is_file() and asset_file.suffix.lower() in [".json", ".obj", ".mtl", ".txt", ".geo", ".animation"]:
+            with open(asset_file, "r", encoding="utf-8", errors="ignore") as f:
+                for line_idx, line in enumerate(f, 1):
+                    for token in forbidden_tokens:
+                        if token in line:
+                            errors.append(f"Absolute path '{token}' found in {asset_file.relative_to(PROJECT_ROOT)}:line {line_idx}")
+                            break
+
+    # Comprehensive MTL file validation
+    mtl_materials = {} # mtl_path -> set of material names
+    for mtl_file in ASSETS_DIR.rglob("*.mtl"):
+        mats = set()
+        with open(mtl_file, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("newmtl "):
+                    mats.add(line.split()[1])
+                elif line.startswith("map_"):
+                    # Check texture reference in MTL
+                    parts = line.split()
+                    tex_name = parts[-1]
+                    for token in forbidden_tokens:
+                        if token in tex_name:
+                            errors.append(f"Absolute path in MTL texture {mtl_file.name}: {tex_name}")
+        mtl_materials[mtl_file.resolve()] = mats
+
+    # Validate OBJ files for mtllib and usemtl
+    for obj_file in ASSETS_DIR.rglob("*.obj"):
+        referenced_mtl = None
+        with open(obj_file, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("mtllib "):
+                    mtl_name = line.split(" ", 1)[1].strip()
+                    mtl_path = (obj_file.parent / mtl_name).resolve()
+                    if not mtl_path.exists():
+                        errors.append(f"OBJ {obj_file.name} references non-existent mtllib: {mtl_name}")
+                    else:
+                        referenced_mtl = mtl_path
+                elif line.startswith("usemtl ") and referenced_mtl:
+                    used_mat = line.split(" ", 1)[1].strip()
+                    valid_mats = mtl_materials.get(referenced_mtl, set())
+                    if valid_mats and used_mat not in valid_mats:
+                        warnings.append(f"OBJ {obj_file.name} uses material '{used_mat}' not defined in {referenced_mtl.name}")
 
     # Check models in models/item/
     if MODELS_ITEM.exists():
@@ -160,12 +201,6 @@ def validate_models_and_textures(registered_items, registered_blocks):
                     obj_path = MODELS_ITEM / obj_filename
                     if not obj_path.exists():
                         errors.append(f"Referenced OBJ model does not exist: {obj_filename} in {m_file.name}")
-                    else:
-                        # Check OBJ content for absolute paths
-                        with open(obj_path, "r", encoding="utf-8", errors="ignore") as of:
-                            for line in of:
-                                if line.startswith("mtllib ") and ("C:\\" in line or "C:/" in line):
-                                    errors.append(f"Absolute mtllib path in OBJ: {obj_path.name}")
 
             # Check texture references
             textures = data.get("textures", {})

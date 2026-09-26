@@ -30,7 +30,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Bump -bm 1.000000 C:/Material.003_normal.png
+map_Bump -bm 1.000000 Material.003_normal.png
 
 newmtl Material.003
 Ns 302.500000
@@ -41,7 +41,7 @@ Ke 1.000000 0.008097 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Bump -bm 1.000000 C:/Material.003_normal.png
+map_Bump -bm 1.000000 Material.003_normal.png
 
 newmtl OrangeSkin
 Ns 18.495281
@@ -51,4 +51,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 3
-map_Kd C:/OrangeSkin_baseColor.png
+map_Kd OrangeSkin_baseColor.png

@@ -1,6 +1,6 @@
 # Blender 5.2.1 LTS
 # www.blender.org
-mtllib workbench_normalized.mtl
+mtllib work_bench.mtl
 o Object_4
 v 0.473402 0.446322 0.231928
 v 0.473402 0.297548 0.231928
