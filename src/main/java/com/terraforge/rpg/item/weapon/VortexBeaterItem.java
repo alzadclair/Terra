@@ -6,7 +6,9 @@ import com.terraforge.rpg.item.ammo.AmmoType;
 import com.terraforge.rpg.item.ammo.ITerrariaAmmo;
 import com.terraforge.rpg.item.rarity.TerrariaRarity;
 import com.terraforge.rpg.registry.ModEntities;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -14,19 +16,16 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.Random;
 
 /**
  * Vortex Beater (Terraria 1.4.5.8 PC).
  * Endgame celestial firearm featuring 66% ammo conservation and firing explosive Vortex Rockets.
+ * Uses ItemStack CustomData component to store shot counter without singleton mutable state.
  */
 public class VortexBeaterItem extends TerrariaGunItem {
-
-    private static final Random RNG = new Random();
-    private int shotCounter = 0;
 
     public VortexBeaterItem(Properties properties) {
         super(properties, TerrariaRarity.RED, 1_000_000L, 50.0, 0.04, 2.5, 12, 0.66);
@@ -44,7 +43,13 @@ public class VortexBeaterItem extends TerrariaGunItem {
         if (!level.isClientSide() && level instanceof ServerLevel serverLevel) {
             Vec3 eyePos = player.getEyePosition();
             Vec3 look = player.getLookAngle();
-            shotCounter++;
+
+            // Track shot count safely on ItemStack component
+            CustomData customData = gunStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+            CompoundTag tag = customData.copyTag();
+            int shotCounter = tag.getInt("ShotCount") + 1;
+            tag.putInt("ShotCount", shotCounter);
+            gunStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
 
             // Main high-tech celestial bullet
             TerraProjectileEntity bullet = new TerraProjectileEntity(ModEntities.TERRA_PROJECTILE.get(), serverLevel);
@@ -77,8 +82,8 @@ public class VortexBeaterItem extends TerrariaGunItem {
                         6, 0.1, 0.1, 0.1, 0.04);
             }
 
-            // 66% ammo conservation
-            if (!player.isCreative() && !ammoStack.isEmpty() && RNG.nextDouble() >= 0.66) {
+            // 66% ammo conservation using player's random
+            if (!player.isCreative() && !ammoStack.isEmpty() && player.getRandom().nextDouble() >= 0.66) {
                 ammoStack.shrink(1);
             }
 

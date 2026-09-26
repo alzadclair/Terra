@@ -123,17 +123,38 @@ public class TerraProjectileEntity extends Projectile {
         Entity entity = result.getEntity();
         if (entity instanceof LivingEntity target) {
             hitEntities.add(target.getUUID());
-
             Entity owner = getOwner();
             LivingEntity attacker = owner instanceof LivingEntity living ? living : null;
-            DamageSource damageSource = this.damageSources().mobAttack(attacker != null ? attacker : target);
+
+            DamageSource damageSource;
+            if (attacker instanceof net.minecraft.world.entity.player.Player player) {
+                damageSource = this.damageSources().thrown(this, player);
+            } else if (attacker != null) {
+                damageSource = this.damageSources().mobAttack(attacker);
+            } else {
+                damageSource = this.damageSources().thrown(this, this);
+            }
 
             CombatContext context = new CombatContext(attacker, target, damageSource, this.damage);
             context.setDamageClass(this.damageClass);
             context.setCategory(this.damageClass.isPhysicalDefault() ? DamageTypeCategory.PHYSICAL : DamageTypeCategory.MAGICAL);
 
+            boolean isCrit = (this.random.nextDouble() * 100.0) < this.critChance;
+            if (isCrit) {
+                context.setCritical(true);
+                context.setCritMultiplier(2.0); // Canonical Terraria 200% critical hit damage
+            }
+
             double finalDamage = DamageCalculator.calculateDamage(context);
             target.hurt(damageSource, (float) finalDamage);
+
+            if (isCrit && this.level() instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(
+                        ParticleTypes.CRIT,
+                        target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
+                        12, 0.3, 0.3, 0.3, 0.15
+                );
+            }
 
             // Apply knockback
             Vec3 motion = this.getDeltaMovement().normalize().scale(this.knockback * 0.2);
