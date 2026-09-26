@@ -33,6 +33,7 @@ public final class ModEntityRenderers {
         event.registerLayerDefinition(ModModelLayers.THE_DESTROYER, TheDestroyerModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.MOON_LORD, MoonLordModel::createBodyLayer);
         event.registerLayerDefinition(ModModelLayers.FACE_MONSTER, com.terraforge.rpg.client.model.FaceMonsterModel::createBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.PHOENIX_WINGS, com.terraforge.rpg.client.model.PhoenixWingsModel::createBodyLayer);
     }
 
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {

@@ -41,5 +41,8 @@ public final class ModModelLayers {
     public static final ModelLayerLocation FACE_MONSTER = new ModelLayerLocation(
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "face_monster"), "main");
 
+    public static final ModelLayerLocation PHOENIX_WINGS = new ModelLayerLocation(
+            ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "phoenix_wings"), "main");
+
     private ModModelLayers() {}
 }
