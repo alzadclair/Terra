@@ -213,5 +213,31 @@ def main():
                             "TerraForge RPG — Eye of Cthulhu Phase-Specific Skeletal Isolation",
                             OUT_RUNTIME_DIR / "eye_multi_phase_fixed.png")
 
+    # 7. Transition Progression Renders (Server Synced Visual Phase Validation)
+    # 7a. Transition Start (Tick 0): Pure P1 mesh, initial agitation, cornea intact
+    p1_start_transforms = dict(bind_p1)
+    p1_start_transforms["body"] = bind_p1["body"] @ rot_x(5.0) @ rot_y(10.0)
+    p1_start_transforms["tendril_01"] = bind_p1["tendril_01"] @ rot_x(12.0)
+    p1_start_transforms["tendril_02"] = bind_p1["tendril_02"] @ rot_x(-10.0)
+    v_p1_start = skin_mesh(p1_data, p1_start_transforms)
+    render_projection(v_p1_start, "Eye Transition Start (Tick 0) — Pure P1 Mesh & Skeleton (Cornea Intact)",
+                      OUT_RUNTIME_DIR / "eye_transition_start_p1.png", color='royalblue')
+
+    # 7b. Transition Mid (Tick 25): Pure P1 mesh, peak convulsion & agitation, pre-swap
+    render_projection(v_p1_trans, "Eye Transition Mid (Tick 25) — Pure P1 Convulsion (Pre-Swap)",
+                      OUT_RUNTIME_DIR / "eye_transition_mid_p1.png", color='teal')
+
+    # 7c. Transition Swap (Tick 40): Controlled swap to P2 mesh & skeleton, cornea torn
+    p2_swap_transforms = dict(bind_p2)
+    p2_swap_transforms["upper_jaw"] = bind_p2["upper_jaw"] @ rot_x(15.0)
+    p2_swap_transforms["lower_jaw"] = bind_p2["lower_jaw"] @ rot_x(-15.0)
+    v_p2_swap = skin_mesh(p2_data, p2_swap_transforms)
+    render_projection(v_p2_swap, "Eye Transition Swap (Tick 40) — Controlled Swap to P2 (Maw Revealed)",
+                      OUT_RUNTIME_DIR / "eye_transition_swap.png", color='crimson')
+
+    # 7d. Transition P2 Active (Tick 55): Phase 2 fully articulated open maw
+    render_projection(v_p2_bite, "Eye Transition P2 Active (Tick 55) — Articulated Maw Open (+35°/-35°)",
+                      OUT_RUNTIME_DIR / "eye_transition_p2.png", color='firebrick')
+
 if __name__ == "__main__":
     main()

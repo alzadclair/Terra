@@ -40,6 +40,6 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
 
     @Override
     public ResourceLocation getTextureLocation(EyeOfCthulhuEntity entity) {
-        return entity.getCurrentPhase().phaseNumber() >= 2 ? TEXTURE_P2 : TEXTURE_P1;
+        return entity.isRenderPhase2() ? TEXTURE_P2 : TEXTURE_P1;
     }
 }

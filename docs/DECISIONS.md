@@ -108,11 +108,18 @@ Este documento registra todas as decisões técnicas fundamentais, justificativa
      - Fase 1 (`phaseNumber < 2`): utiliza estritamente `meshDataP1`, `skeletonP1`, `instanceP1` e `controllerP1`.
      - Fase 2 (`phaseNumber >= 2`): utiliza estritamente `meshDataP2`, `skeletonP2`, `instanceP2` e `controllerP2`.
      - Nunca combinar a malha P1 com o esqueleto P2, nem a malha P2 com o esqueleto P1.
-  5. **Comportamento em Transição:**
-     - Durante o estado `TRANSITIONING`, enquanto a IA do servidor mantém `phaseNumber < 2`, o cliente renderiza a geometria P1 com `skeletonP1` e `controllerP1` executando o clip `phase_transition`. No tick exato em que a fase muda para Fase 2 no servidor, o modelo comuta atomicamente para `instanceP2` e `skeletonP2`. Zero frames de deformação inválida.
+  5. **Separação Explícita entre Gameplay Phase e Visual Phase na Transição:**
+     - Quando o HP atinge 50%, o servidor altera o *gameplay phase* para Fase 2 (`getCurrentPhase().phaseNumber() == 2`), reduz a defesa para 0 e ativa `isTransitioning = true` com `transitionTicks = TRANSITION_DURATION_TICKS` (60 ticks / 3.0s).
+     - O *visual phase* (`EyeVisualPhase`), no entanto, é desvinculado do *gameplay phase* e sincronizado via `SynchedEntityData` (`DATA_VISUAL_PHASE`):
+       - **Início e Pré-Swap (ticks 0 a 39):** O servidor sincroniza `EyeVisualPhase.TRANSITIONING_P1`. O modelo (`EyeOfCthulhuModel`) e renderizador (`EyeOfCthulhuRenderer`) avaliam `entity.isRenderPhase2() == false`, mantendo estritamente a **malha P1**, **esqueleto P1**, **textura P1** e executando o clipe de convulsão `phase_transition` no `controllerP1`. Nenhum pop visual prematuro ocorre no tick inicial.
+       - **Ponto Controlado de Mesh Swap (`TRANSITION_MESH_SWAP_TICK = 40`):** No tick 40 decorrido (onde o rasgo da córnea expõe a boca na animação), o servidor atualiza o estado para `EyeVisualPhase.PHASE_2`. Automaticamente, `entity.isRenderPhase2()` torna-se `true`, efetuando a troca atômica para a **malha P2**, **esqueleto P2**, **textura P2** e `controllerP2` em pose/idle.
+       - **Pós-Swap e Conclusão (ticks 40 a 60):** O boss finaliza os últimos 20 ticks de convulsão já com a mandíbula P2 articulada. No tick 60, `isTransitioning` encerra-se com partículas de explosão e `animState` passa a `PHASE2_IDLE`, liberando os chain dashes em alta velocidade.
+     - **Normalização e Persistência:**
+       - O estado visual é salvo no NBT via `VisualPhase`, `IsTransitioning` e `TransitionTicks`.
+       - Em reloads de chunks legados ou logins no meio da transição, `normalizeVisualPhase()` garante que entidades não em transição em Fase 2 normalizem imediatamente para `PHASE_2`.
   6. **Validação Automatizada:**
-     - `EyeRuntimePhaseSkeletonTest` valida que tanto P1 quanto P2 mantêm erro de identidade de rest pose $< 10^{-4}$ em runtime.
-     - Teste negativo comprova que pareamentos cruzados produzem erro de distorção $> 10$ unidades (confirmando a necessidade matemática da separação).
-     - `MultiEyeRenderStateTest` valida 5 Eyes simultâneos em fases mistas sem qualquer contaminação cruzada.
+     - `EyeTransitionVisualPhaseTest` valida os 7 estágios do ciclo de vida: início da transição, pre-swap ticks 1..39, tick 40 de mesh swap, post-swap ticks 41..59, finalização em tick 60, fases normais sem transição e lógica de reload NBT/normalização.
+     - `EyeRuntimePhaseSkeletonTest` valida erro de identidade de rest pose $< 10^{-4}$ para P1 e P2.
+     - `MultiEyeRenderStateTest` valida 5 Eyes simultâneos em fases mistas sem contaminação cruzada.
 
 

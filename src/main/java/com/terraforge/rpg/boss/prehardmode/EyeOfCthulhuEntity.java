@@ -63,7 +63,19 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
         DYING
     }
 
+    public enum EyeVisualPhase {
+        PHASE_1,
+        TRANSITIONING_P1,
+        PHASE_2
+    }
+
+    public static final int TRANSITION_DURATION_TICKS = 60;
+    public static final int TRANSITION_MESH_SWAP_TICK = 40;
+
     private static final EntityDataAccessor<Integer> DATA_ANIM_STATE =
+            SynchedEntityData.defineId(EyeOfCthulhuEntity.class, EntityDataSerializers.INT);
+
+    private static final EntityDataAccessor<Integer> DATA_VISUAL_PHASE =
             SynchedEntityData.defineId(EyeOfCthulhuEntity.class, EntityDataSerializers.INT);
 
     private boolean isTransitioning = false;
@@ -78,6 +90,7 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_ANIM_STATE, EyeAnimState.IDLE.ordinal());
+        builder.define(DATA_VISUAL_PHASE, EyeVisualPhase.PHASE_1.ordinal());
     }
 
     public EyeAnimState getAnimState() {
@@ -90,8 +103,57 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
         this.entityData.set(DATA_ANIM_STATE, state.ordinal());
     }
 
+    public EyeVisualPhase getVisualPhase() {
+        int ordinal = this.entityData.get(DATA_VISUAL_PHASE);
+        EyeVisualPhase[] phases = EyeVisualPhase.values();
+        return (ordinal >= 0 && ordinal < phases.length) ? phases[ordinal] : EyeVisualPhase.PHASE_1;
+    }
+
+    public void setVisualPhase(EyeVisualPhase phase) {
+        this.entityData.set(DATA_VISUAL_PHASE, phase.ordinal());
+    }
+
+    public boolean isRenderPhase2() {
+        return getVisualPhase() == EyeVisualPhase.PHASE_2;
+    }
+
     public boolean isTransitioning() {
         return isTransitioning;
+    }
+
+    public int getTransitionTicks() {
+        return transitionTicks;
+    }
+
+    public void startPhaseTransition() {
+        this.isTransitioning = true;
+        this.transitionTicks = TRANSITION_DURATION_TICKS;
+        setVisualPhase(EyeVisualPhase.TRANSITIONING_P1);
+        setAnimState(EyeAnimState.TRANSITIONING);
+    }
+
+    public void tickTransition() {
+        if (!isTransitioning) return;
+        transitionTicks--;
+        int elapsed = TRANSITION_DURATION_TICKS - transitionTicks;
+        if (elapsed >= TRANSITION_MESH_SWAP_TICK && getVisualPhase() != EyeVisualPhase.PHASE_2) {
+            setVisualPhase(EyeVisualPhase.PHASE_2);
+        }
+        if (transitionTicks <= 0) {
+            isTransitioning = false;
+            setVisualPhase(EyeVisualPhase.PHASE_2);
+            setAnimState(EyeAnimState.PHASE2_IDLE);
+        }
+    }
+
+    public void normalizeVisualPhase() {
+        if (!isTransitioning) {
+            if (getCurrentPhase().phaseNumber() >= 2) {
+                setVisualPhase(EyeVisualPhase.PHASE_2);
+            } else {
+                setVisualPhase(EyeVisualPhase.PHASE_1);
+            }
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -135,16 +197,16 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
     protected void onPhaseTransition(BossPhase newPhase) {
         super.onPhaseTransition(newPhase);
 
-        if (newPhase.phaseNumber() >= 2 && !this.level().isClientSide()) {
-            this.isTransitioning = true;
-            this.transitionTicks = 60; // 3.0 seconds transition convulsion
-            setAnimState(EyeAnimState.TRANSITIONING);
+        if (newPhase.phaseNumber() >= 2 && (this.level() == null || !this.level().isClientSide())) {
+            startPhaseTransition();
 
-            this.level().playSound(
-                    null, this.getX(), this.getY(), this.getZ(),
-                    ModSoundEvents.BOSS_ROAR.get(), SoundSource.HOSTILE,
-                    3.0f, 0.8f
-            );
+            if (this.level() != null) {
+                this.level().playSound(
+                        null, this.getX(), this.getY(), this.getZ(),
+                        ModSoundEvents.BOSS_ROAR.get(), SoundSource.HOSTILE,
+                        3.0f, 0.8f
+                );
+            }
         }
     }
 
@@ -154,7 +216,7 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
 
         // Handle server-authoritative Phase 2 transformation
         if (isTransitioning) {
-            transitionTicks--;
+            tickTransition();
 
             // Convulsive shaking
             this.setDeltaMovement(
@@ -181,13 +243,8 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                             1.5f, 0.7f
                     );
                 }
-            }
 
-            if (transitionTicks <= 0) {
-                isTransitioning = false;
-                setAnimState(EyeAnimState.PHASE2_IDLE);
-
-                if (this.level() instanceof ServerLevel serverLevel) {
+                if (!isTransitioning) {
                     serverLevel.sendParticles(
                             ParticleTypes.EXPLOSION,
                             this.getX(), this.getY() + 1.0, this.getZ(),
@@ -198,6 +255,10 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
             return;
         }
 
+        if (this.level() == null || !this.level().isClientSide()) {
+            normalizeVisualPhase();
+        }
+
         // Daytime departure (Terraria rule: despawns if night ends)
         long dayTime = this.level().getDayTime() % 24000;
         if (dayTime < 13000 || dayTime > 23000) {
@@ -206,6 +267,36 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
             if (this.getY() > 300) {
                 this.discard();
             }
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        if (this.position() != null) {
+            super.addAdditionalSaveData(tag);
+        }
+        tag.putString("VisualPhase", getVisualPhase().name());
+        tag.putBoolean("IsTransitioning", this.isTransitioning);
+        tag.putInt("TransitionTicks", this.transitionTicks);
+    }
+
+    @Override
+    public void readAdditionalSaveData(net.minecraft.nbt.CompoundTag tag) {
+        if (this.position() != null) {
+            super.readAdditionalSaveData(tag);
+        }
+        if (tag.contains("VisualPhase")) {
+            try {
+                setVisualPhase(EyeVisualPhase.valueOf(tag.getString("VisualPhase")));
+            } catch (IllegalArgumentException e) {
+                normalizeVisualPhase();
+            }
+        } else {
+            normalizeVisualPhase();
+        }
+        if (tag.contains("IsTransitioning")) {
+            this.isTransitioning = tag.getBoolean("IsTransitioning");
+            this.transitionTicks = tag.getInt("TransitionTicks");
         }
     }
 

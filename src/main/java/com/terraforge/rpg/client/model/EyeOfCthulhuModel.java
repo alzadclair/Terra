@@ -61,7 +61,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     }
 
     public Skeleton getSkeleton() {
-        boolean isPhase2 = currentEntity != null && currentEntity.getCurrentPhase().phaseNumber() >= 2;
+        boolean isPhase2 = currentEntity != null && currentEntity.isRenderPhase2();
         return currentRenderState != null ? currentRenderState.getSkeleton(isPhase2) : null;
     }
 
@@ -70,7 +70,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     }
 
     public AnimationController getAnimController() {
-        boolean isPhase2 = currentEntity != null && currentEntity.getCurrentPhase().phaseNumber() >= 2;
+        boolean isPhase2 = currentEntity != null && currentEntity.isRenderPhase2();
         return currentRenderState != null ? currentRenderState.getAnimController(isPhase2) : null;
     }
 
@@ -90,7 +90,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         state.setYaw((float) Math.toRadians(netHeadYaw));
         state.setPitch((float) Math.toRadians(headPitch));
 
-        boolean isPhase2 = entity.getCurrentPhase().phaseNumber() >= 2;
+        boolean isPhase2 = entity.isRenderPhase2();
 
         // Dynamic roll banking during high-speed charge dashes
         double velX = entity.getDeltaMovement().x;
@@ -115,7 +115,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
             case CHARGE -> "charge";
             case CHARGE_RECOVER -> "charge_recover";
             case HURT -> "hurt";
-            case TRANSITIONING -> "phase_transition";
+            case TRANSITIONING -> isPhase2 ? "phase2_idle" : "phase_transition";
             case PHASE2_IDLE -> "phase2_idle";
             case PHASE2_CHARGE_PREPARE -> "phase2_charge_prepare";
             case PHASE2_CHARGE -> "phase2_charge";
@@ -163,7 +163,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         // Base model scale
         poseStack.scale(0.04f, 0.04f, 0.04f);
 
-        boolean isPhase2 = currentEntity != null && currentEntity.getCurrentPhase().phaseNumber() >= 2;
+        boolean isPhase2 = currentEntity != null && currentEntity.isRenderPhase2();
         ResourceLocation skinLoc = isPhase2 ? SKIN_P2 : SKIN_P1;
 
         float a = ((color >> 24) & 0xFF) / 255.0f;
