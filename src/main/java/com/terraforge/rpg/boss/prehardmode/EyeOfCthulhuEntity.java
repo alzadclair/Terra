@@ -301,14 +301,37 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
         this.yBodyRot = this.getYRot();
         this.yHeadRot = this.getYRot();
 
-        // Daytime departure (Terraria rule: despawns if night ends)
-        long dayTime = this.level().getDayTime() % 24000;
-        if (dayTime < 13000 || dayTime > 23000) {
-            setAnimState(EyeAnimState.ENRAGED);
-            this.setDeltaMovement(0, 1.2, 0);
-            if (this.getY() > 300) {
-                this.discard();
+        // Daytime departure: Only flee if night ends AND there are no players anywhere nearby (abandoned fight).
+        // If a player is present or fighting, the boss remains engaged and will NOT flee!
+        Player nearbyPlayer = this.level().getNearestPlayer(this, 96.0);
+        if (nearbyPlayer == null && this.getTarget() == null && !this.isPersistenceRequired()) {
+            long dayTime = this.level().getDayTime() % 24000;
+            if (dayTime < 13000 || dayTime > 23000) {
+                setAnimState(EyeAnimState.ENRAGED);
+                this.setDeltaMovement(0, 0.8, 0);
+                if (this.getY() > 300) {
+                    this.discard();
+                }
             }
+        } else if (this.getTarget() == null && nearbyPlayer != null) {
+            // When no combat target (e.g. player in Creative mode or inspecting boss),
+            // smoothly hover and track the nearby player so the player can inspect the 3D model
+            Vec3 targetEye = nearbyPlayer.getEyePosition();
+            double hoverY = nearbyPlayer.getY() + (isRenderPhase2() ? 3.5 : 5.0);
+            Vec3 hoverPos = new Vec3(nearbyPlayer.getX(), hoverY, nearbyPlayer.getZ());
+            Vec3 toHover = hoverPos.subtract(this.position());
+
+            if (toHover.length() > 2.0) {
+                this.setDeltaMovement(toHover.normalize().scale(0.20));
+            } else {
+                // Gentle floating bob
+                double bob = Math.sin(this.tickCount * 0.1) * 0.02;
+                this.setDeltaMovement(0, bob, 0);
+            }
+
+            Vec3 toPlayer = targetEye.subtract(this.position());
+            this.faceDirection(toPlayer.x, toPlayer.y, toPlayer.z, 15.0f, 15.0f);
+            setAnimState(isRenderPhase2() ? EyeAnimState.PHASE2_IDLE : EyeAnimState.HOVER);
         }
     }
 
