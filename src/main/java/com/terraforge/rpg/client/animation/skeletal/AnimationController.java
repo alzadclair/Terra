@@ -107,6 +107,10 @@ public class AnimationController {
         }
     }
 
+    private static final org.joml.Vector3f ZERO_VEC = new org.joml.Vector3f(0.0f, 0.0f, 0.0f);
+    private static final org.joml.Quaternionf IDENTITY_QUAT = new org.joml.Quaternionf();
+    private static final org.joml.Vector3f ONE_VEC = new org.joml.Vector3f(1.0f, 1.0f, 1.0f);
+
     public void apply(Skeleton skeleton) {
         if (skeleton == null || currentClip == null) {
             return;
@@ -124,7 +128,7 @@ public class AnimationController {
 
                 BoneTransform prevTrans = prevSampleMap.get(name);
                 if (prevTrans == null) {
-                    defaultTransform.set(bone.getBindPos(), bone.getBindRot(), bone.getBindScale());
+                    defaultTransform.set(ZERO_VEC, IDENTITY_QUAT, ONE_VEC);
                     prevTrans = defaultTransform;
                 }
 
@@ -134,22 +138,22 @@ public class AnimationController {
                         bone.resetToBindPose();
                         continue;
                     }
-                    defaultTransform.set(bone.getBindPos(), bone.getBindRot(), bone.getBindScale());
+                    defaultTransform.set(ZERO_VEC, IDENTITY_QUAT, ONE_VEC);
                     currTrans = defaultTransform;
                 }
 
                 prevTrans.lerp(currTrans, blendFactor, tempTransform);
-                bone.localPos.set(tempTransform.translation);
-                bone.localRot.set(tempTransform.rotation);
-                bone.localScale.set(tempTransform.scale);
+                bone.animPos.set(tempTransform.translation);
+                bone.animRot.set(tempTransform.rotation);
+                bone.animScale.set(tempTransform.scale);
             }
         } else {
             for (Bone bone : skeleton.getAllBones().values()) {
                 BoneTransform transform = currentSampleMap.get(bone.getName());
                 if (transform != null) {
-                    bone.localPos.set(transform.translation);
-                    bone.localRot.set(transform.rotation);
-                    bone.localScale.set(transform.scale);
+                    bone.animPos.set(transform.translation);
+                    bone.animRot.set(transform.rotation);
+                    bone.animScale.set(transform.scale);
                 } else {
                     bone.resetToBindPose();
                 }

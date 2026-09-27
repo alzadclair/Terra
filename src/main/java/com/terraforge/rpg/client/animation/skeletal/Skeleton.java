@@ -14,7 +14,9 @@ public class Skeleton {
     public Skeleton(Bone rootBone) {
         this.rootBone = rootBone;
         registerBonesRecursively(rootBone);
-        initBindPose();
+        if (!rootBone.hasExplicitBindMatrices()) {
+            initBindPose();
+        }
         updateMatrices();
     }
 
@@ -50,20 +52,6 @@ public class Skeleton {
             bone.resetToBindPose();
         }
         updateMatrices();
-    }
-
-    public void applyBindMatrices(com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshData meshData) {
-        if (meshData == null) return;
-        java.util.List<String> boneNames = meshData.getBoneNames();
-        for (int i = 0; i < boneNames.size(); i++) {
-            Bone bone = bonesByName.get(boneNames.get(i));
-            if (bone != null) {
-                bone.bindWorldMatrix.set(meshData.getBindWorldMatrix(i));
-                bone.invBindWorldMatrix.set(meshData.getInverseBindMatrix(i));
-                bone.worldMatrix.set(bone.bindWorldMatrix);
-                bone.skinMatrix.set(bone.worldMatrix).mul(bone.invBindWorldMatrix);
-            }
-        }
     }
 
     public void updateMatrices() {

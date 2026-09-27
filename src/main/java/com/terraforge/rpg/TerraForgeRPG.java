@@ -63,6 +63,7 @@ public final class TerraForgeRPG {
         NeoForge.EVENT_BUS.register(EntityDeathHandler.class);
         NeoForge.EVENT_BUS.register(CombatEventHandler.class);
         NeoForge.EVENT_BUS.register(com.terraforge.rpg.world.WorldTickHandler.class);
+        NeoForge.EVENT_BUS.register(com.terraforge.rpg.command.TerraForgeCommands.class);
 
         // Client-Specific Initialization
         if (FMLEnvironment.dist.isClient()) {

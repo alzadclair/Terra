@@ -54,3 +54,36 @@ Este documento registra todas as decisões técnicas fundamentais, justificativa
   4. **Matrizes de Bind Autênticas e Invariância de Rest Pose:** As matrizes de bind inverso originais do GLTF (acessores 40 e 32) são transformadas para o espaço de coordenadas do Minecraft via $M_{mc} = T \cdot M_{gltf} \cdot T^{-1}$ (onde $T$ mapeia $x \to x, y \to -z, z \to y$). Na pose de repouso, o erro de identidade $\max |S_{skin} - I| < 5 \times 10^{-5}$ (precisão limite de float de 32 bits para coordenadas de pivô $\approx 250$), garantindo zero distorção visual.
   5. **Skinning de Normais com Escala Não Uniforme:** A matriz normal de cada osso é computada a cada frame via $N_{skin} = (M_{skin}^{3\times 3})^{-T}$ utilizando `Matrix4f.normal(Matrix3f)` da JOML com zero alocações na heap. Isso assegura ortogonalidade perfeita de iluminação mesmo sob escalas agressivas (como $(0.88, 0.88, 1.35)$ em animações de charge).
   6. **Zero Alocação Heap por Frame:** `TerraSkinnedMeshInstance` pré-aloca arrays primitivos (`float[] skinnedPositions`, `float[] skinnedNormals`, `Matrix4f[] bonePalette`, `Matrix3f[] normalPalette`), eliminando qualquer criação de objetos no ciclo de renderização.
+
+---
+
+### ADR 7: Unified Skeletal Bind Pose Source of Truth
+* **Data:** 2026-09-26
+* **Status:** Aprovado e Implementado
+* **Contexto:** Anteriormente, o rig do Eye of Cthulhu em runtime usava pivôs e matrizes locais aproximadas hardcoded, enquanto os testes aplicavam matrizes reais via patch de teste `applyBindMatrices(meshData)`. Isso criava divergência entre os ambientes de teste e runtime e deformava os vértices durante animações de mandíbula.
+* **Decisão:**
+  1. A fonte de verdade única para hierarquia de ossos, matrizes `bindLocal`, `bindWorld` e `inverseBind` é o arquivo `.skin.json` exportado do GLTF canônico.
+  2. `EyeSkeletonFactory.create(meshData)` foi introduzido como o criador unificado do esqueleto para runtime e testes, eliminando o patch `applyBindMatrices`.
+  3. A transformação local de cada osso separa a pose de bind dos deltas de animação:
+     $$\mathbf{M}_{local} = \mathbf{M}_{bindLocal} \times \mathbf{M}_{animLocal}$$
+     $$\mathbf{M}_{world} = \mathbf{M}_{parentWorld} \times \mathbf{M}_{local}$$
+     $$\mathbf{M}_{skin} = \mathbf{M}_{world} \times \mathbf{M}_{invBindWorld}$$
+  4. Quando os deltas são neutros ($\mathbf{M}_{animLocal} = \mathbf{I}$), $\mathbf{M}_{skin} = \mathbf{I}$ com erro absoluto $< 10^{-12}$.
+  5. As rotações de mandíbula (superior e inferior) atuam estritamente como deltas de rotação em torno do pivô local $[0.018, 12.302, 0.144]$ e $[0.018, 10.149, -4.324]$, mantendo drift de pivô $< 10^{-5}$ em qualquer ângulo.
+
+---
+
+### ADR 8: Per-Entity Render State Isolation (`EyeRenderState`)
+* **Data:** 2026-09-26
+* **Status:** Aprovado e Implementado
+* **Contexto:** `EyeOfCthulhuModel` mantinha campos mutáveis (`skeleton`, `animController`, `lastAgeInTicks`, `instanceP1`, `instanceP2`), causando contaminação cruzada quando múltiplos Eyes of Cthulhu existiam no mundo. O cálculo de deltaTime e interpolações de um boss corrompia a animação dos demais.
+* **Decisão:**
+  1. `EyeOfCthulhuModel` tornou-se completamente stateless. O modelo não mantém instâncias de mesh, controladores de animação ou tempo.
+  2. Todo o estado mutável por entidade reside em `EyeRenderState`, gerenciado exclusivamente no client por `EyeRenderStateManager` mapeado pelo `UUID` da entidade.
+  3. Ciclos de vida e prevenção de vazamento de memória:
+     - `EntityLeaveLevelEvent`: remove o estado do cache quando o boss morre ou é descarregado.
+     - `LevelEvent.Unload`: limpa todos os estados ao descarregar a dimensão/mundo.
+     - `ClientPlayerNetworkEvent.LoggingOut`: limpa o cache ao sair de servidores.
+     - `RegisterClientReloadListenersEvent` (F3+T): limpa instâncias e recarrega meshes.
+  4. Comando de depuração para desenvolvedores `/terraforge debug eye state <state>` adicionado para validação em runtime de qualquer fase ou animação.
+

@@ -29,6 +29,7 @@ public final class TerraForgeClient {
 
         // Register client game bus listeners
         NeoForge.EVENT_BUS.addListener(ClientInputHandler::onClientTick);
+        com.terraforge.rpg.client.render.entity.state.EyeRenderStateManager.registerEvents();
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
@@ -41,6 +42,7 @@ public final class TerraForgeClient {
         event.registerReloadListener((ResourceManagerReloadListener) (ResourceManager resourceManager) -> {
             TerraMeshLoader.clearCache();
             com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.preload(resourceManager);
+            com.terraforge.rpg.client.render.entity.state.EyeRenderStateManager.clear();
             TerraLogger.info("CLIENT", "Reloaded and preloaded 3D skinned mesh caches on resource reload (F3+T).");
         });
     }

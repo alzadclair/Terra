@@ -1,10 +1,8 @@
 """
 Generates visual validation render projections for Eye of Cthulhu skinning.
-Outputs to build/visual_validation/eye/:
-- eye_p1_rest_pose.png
-- eye_p2_rest_pose.png
-- eye_p2_bite_pose.png
-- eye_p2_tendril_wave.png
+Outputs to:
+- build/visual_validation/eye/
+- build/visual_validation/runtime/
 """
 
 import json
@@ -16,7 +14,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 MODELS_DIR = PROJECT_ROOT / "src/main/resources/assets/terraforge_rpg/models/entity/boss"
-OUT_DIR = PROJECT_ROOT / "build/visual_validation/eye"
+OUT_EYE_DIR = PROJECT_ROOT / "build/visual_validation/eye"
+OUT_RUNTIME_DIR = PROJECT_ROOT / "build/visual_validation/runtime"
 
 def rot_x(deg):
     r = np.radians(deg)
@@ -28,11 +27,12 @@ def rot_x(deg):
     ], dtype=np.float64)
 
 def skin_mesh(data, bone_transforms):
-    bones = data["bones"]
+    raw_bones = data["bones"]
+    bone_names = [b["name"] if isinstance(b, dict) else b for b in raw_bones]
     inv_bind = [np.array(m, dtype=np.float64).reshape((4, 4), order="F") for m in data["inverseBindMatrices"]]
     bone_palette = []
 
-    for i, bname in enumerate(bones):
+    for i, bname in enumerate(bone_names):
         T_bone = bone_transforms.get(bname, np.linalg.inv(inv_bind[i]))
         S_i = T_bone @ inv_bind[i]
         bone_palette.append(S_i)
@@ -80,32 +80,39 @@ def render_projection(verts, title, out_path, color='crimson'):
     ax.grid(True, linestyle=':', alpha=0.5)
 
     plt.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(out_path, dpi=150)
     plt.close()
     print(f"Rendered: {out_path}")
 
 def main():
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_EYE_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
 
     with open(MODELS_DIR / "eye_of_cthulhu_p1.skin.json", "r") as f:
         p1_data = json.load(f)
     with open(MODELS_DIR / "eye_of_cthulhu_p2.skin.json", "r") as f:
         p2_data = json.load(f)
 
+    raw_p2_bones = [b["name"] if isinstance(b, dict) else b for b in p2_data["bones"]]
+    inv_p2 = [np.array(m, dtype=np.float64).reshape((4, 4), order="F") for m in p2_data["inverseBindMatrices"]]
+    bind_p2 = {bname: np.linalg.inv(inv_p2[i]) for i, bname in enumerate(raw_p2_bones)}
+
     # 1. Phase 1 Rest Pose
     v_p1_rest = skin_mesh(p1_data, {})
     render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Rest Pose (Identity Skinning)",
-                      OUT_DIR / "eye_p1_rest_pose.png", color='royalblue')
+                      OUT_EYE_DIR / "eye_p1_rest_pose.png", color='royalblue')
+    render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Runtime Rest Pose",
+                      OUT_RUNTIME_DIR / "eye_p1_runtime_rest.png", color='royalblue')
 
     # 2. Phase 2 Rest Pose
     v_p2_rest = skin_mesh(p2_data, {})
     render_projection(v_p2_rest, "Eye of Cthulhu Phase 2 — Rest Pose (Neutral Cornea Maw)",
-                      OUT_DIR / "eye_p2_rest_pose.png", color='darkred')
+                      OUT_EYE_DIR / "eye_p2_rest_pose.png", color='darkred')
+    render_projection(v_p2_rest, "Eye of Cthulhu Phase 2 — Runtime Neutral Rest",
+                      OUT_RUNTIME_DIR / "eye_p2_runtime_rest.png", color='darkred')
 
     # 3. Phase 2 Bite Pose (Articulated Maw)
-    inv_p2 = [np.array(m, dtype=np.float64).reshape((4, 4), order="F") for m in p2_data["inverseBindMatrices"]]
-    bind_p2 = {bname: np.linalg.inv(inv_p2[i]) for i, bname in enumerate(p2_data["bones"])}
-
     p2_bite_transforms = dict(bind_p2)
     # Rotate upper jaw +35 deg around its hinge pivot [0.018, 12.302, 0.144]
     p2_bite_transforms["upper_jaw"] = bind_p2["upper_jaw"] @ rot_x(35.0)
@@ -114,7 +121,9 @@ def main():
 
     v_p2_bite = skin_mesh(p2_data, p2_bite_transforms)
     render_projection(v_p2_bite, "Eye of Cthulhu Phase 2 — Bite Pose (+35°/-35° Articulated Maw)",
-                      OUT_DIR / "eye_p2_bite_pose.png", color='firebrick')
+                      OUT_EYE_DIR / "eye_p2_bite_pose.png", color='firebrick')
+    render_projection(v_p2_bite, "Eye of Cthulhu Phase 2 — Runtime Articulated Bite (+35°/-35°)",
+                      OUT_RUNTIME_DIR / "eye_p2_runtime_bite.png", color='firebrick')
 
     # 4. Phase 2 Tendril Wave
     p2_wave_transforms = dict(bind_p2)
@@ -126,7 +135,9 @@ def main():
 
     v_p2_wave = skin_mesh(p2_data, p2_wave_transforms)
     render_projection(v_p2_wave, "Eye of Cthulhu Phase 2 — Tendril Flexion Wave",
-                      OUT_DIR / "eye_p2_tendril_wave.png", color='purple')
+                      OUT_EYE_DIR / "eye_p2_tendril_wave.png", color='purple')
+    render_projection(v_p2_wave, "Eye of Cthulhu Phase 2 — Runtime Tendril Flexion",
+                      OUT_RUNTIME_DIR / "eye_p2_runtime_tendrils.png", color='purple')
 
 if __name__ == "__main__":
     main()

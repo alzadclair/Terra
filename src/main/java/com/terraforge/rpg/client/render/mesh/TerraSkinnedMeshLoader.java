@@ -91,15 +91,39 @@ public final class TerraSkinnedMeshLoader {
         String name = root.has("name") ? root.get("name").getAsString() : defaultName;
         String texture = root.has("texture") ? root.get("texture").getAsString() : "";
 
-        List<String> bones = new ArrayList<>();
+        List<TerraSkinnedMeshData.BoneData> boneDataList = new ArrayList<>();
+        List<String> legacyBoneNames = new ArrayList<>();
+        Matrix4f[] invBindMatrices = null;
+
         if (root.has("bones")) {
-            for (JsonElement elem : root.getAsJsonArray("bones")) {
-                bones.add(elem.getAsString());
+            JsonArray bArr = root.getAsJsonArray("bones");
+            if (!bArr.isEmpty() && bArr.get(0).isJsonObject()) {
+                for (JsonElement elem : bArr) {
+                    JsonObject bObj = elem.getAsJsonObject();
+                    String bName = bObj.get("name").getAsString();
+                    String parent = bObj.has("parent") && !bObj.get("parent").isJsonNull() ? bObj.get("parent").getAsString() : null;
+                    Matrix4f bindLocal = new Matrix4f();
+                    if (bObj.has("bindLocal")) {
+                        bindLocal.set(toFloatArray(bObj.getAsJsonArray("bindLocal")));
+                    }
+                    Matrix4f bindWorld = new Matrix4f();
+                    if (bObj.has("bindWorld")) {
+                        bindWorld.set(toFloatArray(bObj.getAsJsonArray("bindWorld")));
+                    }
+                    Matrix4f invBind = new Matrix4f();
+                    if (bObj.has("inverseBind")) {
+                        invBind.set(toFloatArray(bObj.getAsJsonArray("inverseBind")));
+                    }
+                    boneDataList.add(new TerraSkinnedMeshData.BoneData(bName, parent, bindLocal, bindWorld, invBind));
+                }
+            } else {
+                for (JsonElement elem : bArr) {
+                    legacyBoneNames.add(elem.getAsString());
+                }
             }
         }
 
-        Matrix4f[] invBindMatrices = null;
-        if (root.has("inverseBindMatrices")) {
+        if (boneDataList.isEmpty() && root.has("inverseBindMatrices")) {
             JsonArray arr = root.getAsJsonArray("inverseBindMatrices");
             invBindMatrices = new Matrix4f[arr.size()];
             for (int i = 0; i < arr.size(); i++) {
@@ -132,7 +156,11 @@ public final class TerraSkinnedMeshLoader {
             }
         }
 
-        return new TerraSkinnedMeshData(name, texture, bones, invBindMatrices, parts);
+        if (!boneDataList.isEmpty()) {
+            return new TerraSkinnedMeshData(name, texture, boneDataList, parts);
+        } else {
+            return new TerraSkinnedMeshData(name, texture, legacyBoneNames, invBindMatrices, parts);
+        }
     }
 
     private static float[] toFloatArray(JsonArray array) {

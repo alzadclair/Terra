@@ -36,6 +36,20 @@ public final class EyeOfCthulhuArmature {
     }
 
     public static Skeleton createArmature() {
+        try {
+            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            if (mc != null && mc.getResourceManager() != null) {
+                com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshData data =
+                        com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.getOrLoad(
+                                com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshLoader.SKIN_EYE_P2
+                        );
+                if (data != null && !data.getBones().isEmpty()) {
+                    return EyeSkeletonFactory.create(data);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+
         Bone root = new Bone("root", null);
         root.setBindPose(0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
@@ -88,6 +102,10 @@ public final class EyeOfCthulhuArmature {
         tendril6.setBindPose(74.930f, 438.405f, 50.909f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
 
         return new Skeleton(root);
+    }
+
+    public static Skeleton createArmature(com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshData meshData) {
+        return EyeSkeletonFactory.create(meshData);
     }
 
     public static AnimationController createController() {
@@ -219,15 +237,15 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(2.0f, 0.0f, 0.0f, 0.1f, rot(0, 180, 360), 1.25f, 1.25f, 1.25f)
                 .addKeyframe(3.0f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack ptUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.2f, 0.0f, 0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(2.0f, 0.0f, 0.35f, 0.15f, rot(45, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(3.0f, 0.0f, 0.25f, 0.1f, rot(25, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.2f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(2.0f, 0.0f, 0.0f, 0.0f, rot(45, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(3.0f, 0.0f, 0.0f, 0.0f, rot(25, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack ptLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.2f, 0.0f, -0.15f, 0.1f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(2.0f, 0.0f, -0.35f, 0.15f, rot(-45, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(3.0f, 0.0f, -0.25f, 0.1f, rot(-25, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.2f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(2.0f, 0.0f, 0.0f, 0.0f, rot(-45, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(3.0f, 0.0f, 0.0f, 0.0f, rot(-25, 0, 0), 1.0f, 1.0f, 1.0f);
         pTrans.addTrack(ptBody).addTrack(ptUpJaw).addTrack(ptLoJaw);
         addTendrilWave(pTrans, 3.0f, 40.0f, false);
         controller.registerClip(pTrans);
@@ -239,17 +257,17 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(0.75f, 0.0f, 0.18f, 0.0f, rot(3, 0, 0), 1.03f, 0.97f, 1.03f)
                 .addKeyframe(1.5f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack p2iUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.22f, 0.1f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.35f, 0.0f, 0.32f, 0.1f, rot(32, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.75f, 0.0f, 0.20f, 0.1f, rot(18, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.15f, 0.0f, 0.30f, 0.1f, rot(28, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.5f, 0.0f, 0.22f, 0.1f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.35f, 0.0f, 0.0f, 0.0f, rot(32, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.75f, 0.0f, 0.0f, 0.0f, rot(18, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.15f, 0.0f, 0.0f, 0.0f, rot(28, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.5f, 0.0f, 0.0f, 0.0f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack p2iLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.22f, 0.1f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.35f, 0.0f, -0.32f, 0.1f, rot(-32, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.75f, 0.0f, -0.20f, 0.1f, rot(-18, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.15f, 0.0f, -0.30f, 0.1f, rot(-28, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.5f, 0.0f, -0.22f, 0.1f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.35f, 0.0f, 0.0f, 0.0f, rot(-32, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.75f, 0.0f, 0.0f, 0.0f, rot(-18, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.15f, 0.0f, 0.0f, 0.0f, rot(-28, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.5f, 0.0f, 0.0f, 0.0f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f);
         p2Idle.addTrack(p2iBody).addTrack(p2iUpJaw).addTrack(p2iLoJaw);
         addTendrilWave(p2Idle, 1.5f, 18.0f, true);
         controller.registerClip(p2Idle);
@@ -260,11 +278,11 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)
                 .addKeyframe(0.6f, 0.0f, 0.2f, -0.8f, rot(-18, 0, 0), 0.9f, 0.9f, 1.25f);
         BoneTrack p2cpUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.22f, 0.1f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.6f, 0.0f, 0.45f, 0.15f, rot(55, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.6f, 0.0f, 0.0f, 0.0f, rot(55, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack p2cpLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.22f, 0.1f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.6f, 0.0f, -0.45f, 0.15f, rot(-55, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.6f, 0.0f, 0.0f, 0.0f, rot(-55, 0, 0), 1.0f, 1.0f, 1.0f);
         p2Cp.addTrack(p2cpBody).addTrack(p2cpUpJaw).addTrack(p2cpLoJaw);
         addTendrilBack(p2Cp, 0.6f, -30.0f);
         controller.registerClip(p2Cp);
@@ -278,13 +296,13 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(0.6f, 0.0f, 0.0f, 0.45f, rot(0, 0, -10), 0.85f, 0.85f, 1.4f)
                 .addKeyframe(0.8f, 0.0f, 0.0f, 0.4f, rot(0, 0, 0), 0.85f, 0.85f, 1.4f);
         BoneTrack p2cgUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.35f, 0.12f, rot(40, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.4f, 0.0f, 0.45f, 0.15f, rot(52, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.8f, 0.0f, 0.35f, 0.12f, rot(40, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(40, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.4f, 0.0f, 0.0f, 0.0f, rot(52, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.8f, 0.0f, 0.0f, 0.0f, rot(40, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack p2cgLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.35f, 0.12f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.4f, 0.0f, -0.45f, 0.15f, rot(-52, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.8f, 0.0f, -0.35f, 0.12f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.4f, 0.0f, 0.0f, 0.0f, rot(-52, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.8f, 0.0f, 0.0f, 0.0f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f);
         p2Cg.addTrack(p2cgBody).addTrack(p2cgUpJaw).addTrack(p2cgLoJaw);
         addTendrilBack(p2Cg, 0.8f, -45.0f);
         controller.registerClip(p2Cg);
@@ -296,15 +314,15 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(0.2f, 0.0f, 0.0f, 0.3f, rot(8, 0, 0), 1.05f, 0.95f, 1.15f)
                 .addKeyframe(0.5f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack btUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.45f, 0.15f, rot(55, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.2f, 0.0f, 0.08f, 0.05f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)   // SNAP SHUT!
-                .addKeyframe(0.35f, 0.0f, 0.18f, 0.1f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.5f, 0.0f, 0.22f, 0.1f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(55, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.2f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f)   // SNAP SHUT!
+                .addKeyframe(0.35f, 0.0f, 0.0f, 0.0f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.5f, 0.0f, 0.0f, 0.0f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack btLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.45f, 0.15f, rot(-55, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.2f, 0.0f, -0.08f, 0.05f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f) // SNAP SHUT!
-                .addKeyframe(0.35f, 0.0f, -0.18f, 0.1f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.5f, 0.0f, -0.22f, 0.1f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-55, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.2f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 1.0f, 1.0f, 1.0f) // SNAP SHUT!
+                .addKeyframe(0.35f, 0.0f, 0.0f, 0.0f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.5f, 0.0f, 0.0f, 0.0f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f);
         bite.addTrack(btBody).addTrack(btUpJaw).addTrack(btLoJaw);
         controller.registerClip(bite);
 
@@ -317,25 +335,25 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(0.75f, -0.02f, 0.04f, 0.01f, rot(-5, 6, -4), 0.97f, 0.97f, 0.97f)
                 .addKeyframe(1.0f, 0.02f, -0.02f, 0.0f, rot(5, -6, 4), 1.05f, 1.05f, 1.05f);
         BoneTrack erUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.20f, 0.1f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.12f, 0.0f, 0.40f, 0.15f, rot(48, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.25f, 0.0f, 0.15f, 0.08f, rot(8, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.37f, 0.0f, 0.42f, 0.15f, rot(50, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.5f, 0.0f, 0.20f, 0.1f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.62f, 0.0f, 0.40f, 0.15f, rot(48, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.75f, 0.0f, 0.15f, 0.08f, rot(8, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.87f, 0.0f, 0.42f, 0.15f, rot(50, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.0f, 0.0f, 0.20f, 0.1f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.12f, 0.0f, 0.0f, 0.0f, rot(48, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.25f, 0.0f, 0.0f, 0.0f, rot(8, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.37f, 0.0f, 0.0f, 0.0f, rot(50, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.5f, 0.0f, 0.0f, 0.0f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.62f, 0.0f, 0.0f, 0.0f, rot(48, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.75f, 0.0f, 0.0f, 0.0f, rot(8, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.87f, 0.0f, 0.0f, 0.0f, rot(50, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.0f, 0.0f, 0.0f, 0.0f, rot(15, 0, 0), 1.0f, 1.0f, 1.0f);
         BoneTrack erLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.20f, 0.1f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.12f, 0.0f, -0.40f, 0.15f, rot(-48, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.25f, 0.0f, -0.15f, 0.08f, rot(-8, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.37f, 0.0f, -0.42f, 0.15f, rot(-50, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.5f, 0.0f, -0.20f, 0.1f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.62f, 0.0f, -0.40f, 0.15f, rot(-48, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.75f, 0.0f, -0.15f, 0.08f, rot(-8, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(0.87f, 0.0f, -0.42f, 0.15f, rot(-50, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.0f, 0.0f, -0.20f, 0.1f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.12f, 0.0f, 0.0f, 0.0f, rot(-48, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.25f, 0.0f, 0.0f, 0.0f, rot(-8, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.37f, 0.0f, 0.0f, 0.0f, rot(-50, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.5f, 0.0f, 0.0f, 0.0f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.62f, 0.0f, 0.0f, 0.0f, rot(-48, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.75f, 0.0f, 0.0f, 0.0f, rot(-8, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(0.87f, 0.0f, 0.0f, 0.0f, rot(-50, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.0f, 0.0f, 0.0f, 0.0f, rot(-15, 0, 0), 1.0f, 1.0f, 1.0f);
         enrage.addTrack(erBody).addTrack(erUpJaw).addTrack(erLoJaw);
         addTendrilWave(enrage, 1.0f, 50.0f, true);
         controller.registerClip(enrage);
@@ -348,13 +366,13 @@ public final class EyeOfCthulhuArmature {
                 .addKeyframe(1.6f, 0.0f, -1.5f, 0.0f, rot(110, 260, 200), 0.75f, 0.75f, 0.75f)
                 .addKeyframe(2.5f, 0.0f, -3.0f, 0.0f, rot(160, 360, 310), 0.4f, 0.4f, 0.4f);
         BoneTrack dtUpJaw = new BoneTrack("upper_jaw")
-                .addKeyframe(0.0f, 0.0f, 0.22f, 0.1f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.2f, 0.0f, 0.10f, 0.08f, rot(5, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(2.5f, 0.0f, 0.05f, 0.05f, rot(0, 0, 0), 0.6f, 0.6f, 0.6f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.2f, 0.0f, 0.0f, 0.0f, rot(5, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(2.5f, 0.0f, 0.0f, 0.0f, rot(0, 0, 0), 0.6f, 0.6f, 0.6f);
         BoneTrack dtLoJaw = new BoneTrack("lower_jaw")
-                .addKeyframe(0.0f, 0.0f, -0.22f, 0.1f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(1.2f, 0.0f, -0.35f, 0.12f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f)
-                .addKeyframe(2.5f, 0.0f, -0.45f, 0.15f, rot(-50, 0, 0), 0.6f, 0.6f, 0.6f);
+                .addKeyframe(0.0f, 0.0f, 0.0f, 0.0f, rot(-20, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(1.2f, 0.0f, 0.0f, 0.0f, rot(-40, 0, 0), 1.0f, 1.0f, 1.0f)
+                .addKeyframe(2.5f, 0.0f, 0.0f, 0.0f, rot(-50, 0, 0), 0.6f, 0.6f, 0.6f);
         death.addTrack(dtBody).addTrack(dtUpJaw).addTrack(dtLoJaw);
         addTendrilCurl(death, 2.5f);
         controller.registerClip(death);

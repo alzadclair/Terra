@@ -1,7 +1,9 @@
 """
+CATALOG + runtime verification:
 Generates docs/ENTITY_3D_RUNTIME_STATUS.csv
 Catalogs all 31 registered entities in TerraForge RPG with their 3D rendering pipeline,
 mesh asset, triangle budget, rigging status, and runtime implementation.
+Verifies runtime rendering classification against codebase reality.
 """
 
 import csv

@@ -31,7 +31,8 @@ public class BoneBindingValidationTest {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray bones = root.getAsJsonArray("bones");
             for (JsonElement b : bones) {
-                boneVertexCounts.put(b.getAsString(), 0);
+                String bName = b.isJsonObject() ? b.getAsJsonObject().get("name").getAsString() : b.getAsString();
+                boneVertexCounts.put(bName, 0);
             }
 
             JsonArray parts = root.getAsJsonArray("parts");
@@ -46,7 +47,8 @@ public class BoneBindingValidationTest {
                         float w = weights.get(v * 4 + k).getAsFloat();
                         int bIdx = indices.get(v * 4 + k).getAsInt();
                         if (w > 0.05f) {
-                            String boneName = bones.get(bIdx).getAsString();
+                            JsonElement b = bones.get(bIdx);
+                            String boneName = b.isJsonObject() ? b.getAsJsonObject().get("name").getAsString() : b.getAsString();
                             boneVertexCounts.put(boneName, boneVertexCounts.get(boneName) + 1);
                         }
                     }
@@ -82,7 +84,8 @@ public class BoneBindingValidationTest {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             JsonArray bones = root.getAsJsonArray("bones");
             for (JsonElement b : bones) {
-                boneVertexCounts.put(b.getAsString(), 0);
+                String bName = b.isJsonObject() ? b.getAsJsonObject().get("name").getAsString() : b.getAsString();
+                boneVertexCounts.put(bName, 0);
             }
 
             JsonArray parts = root.getAsJsonArray("parts");
@@ -97,7 +100,8 @@ public class BoneBindingValidationTest {
                         float w = weights.get(v * 4 + k).getAsFloat();
                         int bIdx = indices.get(v * 4 + k).getAsInt();
                         if (w > 0.05f) {
-                            String boneName = bones.get(bIdx).getAsString();
+                            JsonElement b = bones.get(bIdx);
+                            String boneName = b.isJsonObject() ? b.getAsJsonObject().get("name").getAsString() : b.getAsString();
                             boneVertexCounts.put(boneName, boneVertexCounts.get(boneName) + 1);
                         }
                     }

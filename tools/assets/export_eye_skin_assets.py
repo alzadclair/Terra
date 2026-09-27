@@ -1,7 +1,8 @@
 """
 Extracts authentic weighted skinning data from GLTF models in C:/model 3d/_processed
-for Eye of Cthulhu Phase 1 and Phase 2, including authentic GLTF inverse bind matrices
-converted to Minecraft space (x -> x, y -> -z, z -> y).
+for Eye of Cthulhu Phase 1 and Phase 2, exporting authentic GLTF bind hierarchies,
+bindLocal matrices, bindWorld matrices, and inverseBind matrices converted to
+Minecraft space (x -> x, y -> -z, z -> y).
 Outputs:
 - eye_of_cthulhu_p1.skin.json
 - eye_of_cthulhu_p2.skin.json
@@ -37,6 +38,38 @@ PALETTE = [
     "optic_back"    # 12
 ]
 PALETTE_MAP = {name: i for i, name in enumerate(PALETTE)}
+
+CANONICAL_BONES_P2 = [
+    ("root",        None,       "_rootJoint"),
+    ("body",        "root",     "root_00"),
+    ("upper_jaw",   "body",     "jaw_upper_01"),
+    ("lower_jaw",   "body",     "jaw_lower_02"),
+    ("tendril_01",  "body",     "tendril_1_0_03"),
+    ("tendril_02",  "body",     "tendril_2_0_09"),
+    ("tendril_03",  "body",     "tendril_3_0_012"),
+    ("tendril_04",  "body",     "tendril_4_0_015"),
+    ("tendril_05",  "body",     "tendril_5_0_06"),
+    ("tendril_06",  "body",     "tendril_5_2_08"),
+    ("iris",        "body",     "root_00"),
+    ("pupil",       "iris",     "root_00"),
+    ("optic_back",  "body",     "root_00")
+]
+
+CANONICAL_BONES_P1 = [
+    ("root",        None,       "_rootJoint"),
+    ("body",        "root",     "root_00"),
+    ("upper_jaw",   "body",     "root_00"),
+    ("lower_jaw",   "body",     "root_00"),
+    ("tendril_01",  "body",     "tendril_1_0_02"),
+    ("tendril_02",  "body",     "tendril_2_0_08"),
+    ("tendril_03",  "body",     "tendril_3_0_011"),
+    ("tendril_04",  "body",     "tendril_4_0_014"),
+    ("tendril_05",  "body",     "tendril_5_0_05"),
+    ("tendril_06",  "body",     "tentacle_outer_01"),
+    ("iris",        "body",     "root_00"),
+    ("pupil",       "iris",     "root_00"),
+    ("optic_back",  "body",     "tentacle_outer_01")
+]
 
 # Basis transform T: x -> x, y -> -z, z -> y
 T_BASIS = np.array([
@@ -92,27 +125,26 @@ def extract_p2():
         inv_bind_by_jname[jname] = inv_mc
         bind_world_by_jname[jname] = bind_mc
 
-    p2_joint_map = {
-        "root": "_rootJoint",
-        "body": "root_00",
-        "upper_jaw": "jaw_upper_01",
-        "lower_jaw": "jaw_lower_02",
-        "tendril_01": "tendril_1_0_03",
-        "tendril_02": "tendril_2_0_09",
-        "tendril_03": "tendril_3_0_012",
-        "tendril_04": "tendril_4_0_015",
-        "tendril_05": "tendril_5_0_06",
-        "tendril_06": "tendril_5_2_08",
-        "iris": "root_00",
-        "pupil": "root_00",
-        "optic_back": "root_00"
-    }
+    bones_structured = []
+    bind_world_map = {}
+    for bname, pname, jname in CANONICAL_BONES_P2:
+        W = bind_world_by_jname[jname].copy()
+        invW = inv_bind_by_jname[jname].copy()
+        bind_world_map[bname] = W
 
-    inv_bind_list = []
-    for bname in PALETTE:
-        jname = p2_joint_map[bname]
-        mat = inv_bind_by_jname.get(jname, np.eye(4))
-        inv_bind_list.append([round(float(v), 7) for v in mat.flatten(order="F")])
+        if pname is None:
+            L = W.copy()
+        else:
+            P = bind_world_map[pname]
+            L = np.linalg.inv(P) @ W
+
+        bones_structured.append({
+            "name": bname,
+            "parent": pname,
+            "bindLocal": [round(float(v), 7) for v in L.flatten(order="F")],
+            "bindWorld": [round(float(v), 7) for v in W.flatten(order="F")],
+            "inverseBind": [round(float(v), 7) for v in invW.flatten(order="F")]
+        })
 
     def map_joint(jname):
         if "upper" in jname: return "upper_jaw"
@@ -224,8 +256,8 @@ def extract_p2():
     out_json = {
         "name": "eye_of_cthulhu_p2",
         "texture": "textures/entity/boss/eye_of_cthulhu_p2.png",
-        "bones": PALETTE,
-        "inverseBindMatrices": inv_bind_list,
+        "bones": bones_structured,
+        "inverseBindMatrices": [b["inverseBind"] for b in bones_structured],
         "parts": parts_json
     }
 
@@ -257,27 +289,30 @@ def extract_p1():
         inv_bind_by_jname[jname] = inv_mc
         bind_world_by_jname[jname] = bind_mc
 
-    p1_joint_map = {
-        "root": "_rootJoint",
-        "body": "root_00",
-        "upper_jaw": "root_00",
-        "lower_jaw": "root_00",
-        "tendril_01": "tendril_1_0_02",
-        "tendril_02": "tendril_2_0_08",
-        "tendril_03": "tendril_3_0_011",
-        "tendril_04": "tendril_4_0_014",
-        "tendril_05": "tendril_5_0_05",
-        "tendril_06": "tentacle_outer_01",
-        "iris": "root_00",
-        "pupil": "root_00",
-        "optic_back": "tentacle_outer_01"
-    }
+    bones_structured = []
+    bind_world_map = {}
+    for bname, pname, jname in CANONICAL_BONES_P1:
+        if jname in bind_world_by_jname:
+            W = bind_world_by_jname[jname].copy()
+            invW = inv_bind_by_jname[jname].copy()
+        else:
+            W = bind_world_map[pname].copy()
+            invW = np.linalg.inv(W)
+        bind_world_map[bname] = W
 
-    inv_bind_list = []
-    for bname in PALETTE:
-        jname = p1_joint_map[bname]
-        mat = inv_bind_by_jname.get(jname, np.eye(4))
-        inv_bind_list.append([round(float(v), 7) for v in mat.flatten(order="F")])
+        if pname is None:
+            L = W.copy()
+        else:
+            P = bind_world_map[pname]
+            L = np.linalg.inv(P) @ W
+
+        bones_structured.append({
+            "name": bname,
+            "parent": pname,
+            "bindLocal": [round(float(v), 7) for v in L.flatten(order="F")],
+            "bindWorld": [round(float(v), 7) for v in W.flatten(order="F")],
+            "inverseBind": [round(float(v), 7) for v in invW.flatten(order="F")]
+        })
 
     def map_joint_p1(jname, part_name, z_val):
         if part_name == "pupil": return "pupil"
@@ -385,8 +420,8 @@ def extract_p1():
     out_json = {
         "name": "eye_of_cthulhu_p1",
         "texture": "textures/entity/boss/eye_of_cthulhu_p1.png",
-        "bones": PALETTE,
-        "inverseBindMatrices": inv_bind_list,
+        "bones": bones_structured,
+        "inverseBindMatrices": [b["inverseBind"] for b in bones_structured],
         "parts": parts_json
     }
 
@@ -426,7 +461,7 @@ Transformations between GLTF space and Minecraft space:
 ### Rest Pose Identity Invariance
 For every joint $j$, the authentic GLTF inverse bind matrix $(B_j^{{-1}})_{{gltf}}$ converted to Minecraft space satisfies:
 $$M_{{bind}}^{{mc}} \\cdot M_{{invBind}}^{{mc}} = (T \\cdot B_j \\cdot T^{{-1}}) \\cdot (T \\cdot B_j^{{-1}} \\cdot T^{{-1}}) = T \\cdot I \\cdot T^{{-1}} = I$$
-Identity validation across all 50 source joints yields a maximum numerical error of $< 5.7 \\times 10^{{-14}}$.
+Identity validation across all source joints yields a numerical error of $< 1 \\times 10^{{-12}}$ in double precision.
 
 ---
 
@@ -434,18 +469,18 @@ Identity validation across all 50 source joints yields a maximum numerical error
 
 In Phase 2, the front cornea tears open to reveal a maw of razor-sharp teeth articulated by upper and lower jaws.
 
-| TerraForge Bone | Source GLTF Joint Node | Minecraft Bind Pivot [X, Y, Z] | Role in Phase 2 |
-|---|---|---|---|
-| `root` | `_rootJoint` (node 14) | `[0.000, 0.000, 0.000]` | Entity root anchor |
-| `body` | `root_00` (node 31) | `[0.000, 0.000, 0.000]` | Main eyeball mass |
-| `upper_jaw` | `jaw_upper_01` (node 32) | `[0.018, 12.302, 0.144]` | **Authentic Upper Jaw Hinge** (articulates upper maw) |
-| `lower_jaw` | `jaw_lower_02` (node 34) | `[0.018, 10.149, -4.324]` | **Authentic Lower Jaw Hinge** (articulates lower maw) |
-| `tendril_01` | `tendril_1_0_03` (node 36) | `[1.544, 247.499, 87.141]` | Top trailing tendril base |
-| `tendril_02` | `tendril_2_0_09` (node 44) | `[-83.905, 247.499, -0.993]` | Left trailing tendril base |
-| `tendril_03` | `tendril_3_0_012` (node 48) | `[-25.397, 247.499, -79.170]` | Bottom-left trailing tendril base |
-| `tendril_04` | `tendril_4_0_015` (node 52) | `[68.315, 247.499, -76.759]` | Bottom-right trailing tendril base |
-| `tendril_05` | `tendril_5_0_06` (node 40) | `[78.023, 247.499, 51.949]` | Right trailing tendril base |
-| `tendril_06` | `tendril_5_2_08` (node 42) | `[74.930, 438.405, 50.909]` | Tendril flex tip / secondary articulation |
+| TerraForge Bone | Parent Bone | Source GLTF Joint Node | Minecraft Bind Pivot [X, Y, Z] | Role in Phase 2 |
+|---|---|---|---|---|
+| `root` | *None* | `_rootJoint` | `[0.000, 0.000, 0.000]` | Entity root anchor |
+| `body` | `root` | `root_00` | `[0.000, 0.000, 0.000]` | Main eyeball mass |
+| `upper_jaw` | `body` | `jaw_upper_01` | `[0.018, 12.302, 0.144]` | **Authentic Upper Jaw Hinge** (articulates upper maw) |
+| `lower_jaw` | `body` | `jaw_lower_02` | `[0.018, 10.149, -4.324]` | **Authentic Lower Jaw Hinge** (articulates lower maw) |
+| `tendril_01` | `body` | `tendril_1_0_03` | `[1.544, 247.499, 87.141]` | Top trailing tendril base |
+| `tendril_02` | `body` | `tendril_2_0_09` | `[-83.905, 247.499, -0.993]` | Left trailing tendril base |
+| `tendril_03` | `body` | `tendril_3_0_012` | `[-25.397, 247.499, -79.170]` | Bottom-left trailing tendril base |
+| `tendril_04` | `body` | `tendril_4_0_015` | `[68.315, 247.499, -76.759]` | Bottom-right trailing tendril base |
+| `tendril_05` | `body` | `tendril_5_0_06` | `[78.023, 247.499, 51.949]` | Right trailing tendril base |
+| `tendril_06` | `body` | `tendril_5_2_08` | `[74.930, 438.405, 50.909]` | Tendril flex tip / secondary articulation |
 
 ---
 
@@ -453,28 +488,31 @@ In Phase 2, the front cornea tears open to reveal a maw of razor-sharp teeth art
 
 In Phase 1, the eye watches the player with a central pupil and iris, trailed by back optic nerves and trailing tendrils.
 
-| TerraForge Bone | Source GLTF Joint Node | Minecraft Bind Pivot [X, Y, Z] | Role in Phase 1 |
-|---|---|---|---|
-| `root` | `_rootJoint` (node 12) | `[0.000, 0.000, 0.000]` | Entity root anchor |
-| `body` | `root_00` (node 29) | `[0.000, 0.000, 0.000]` | Sclera & body mass |
-| `tendril_01` | `tendril_1_0_02` (node 32) | `[1.544, 247.499, 87.141]` | Top trailing tendril base |
-| `tendril_02` | `tendril_2_0_08` (node 40) | `[-83.905, 247.499, -0.993]` | Left trailing tendril base |
-| `tendril_03` | `tendril_3_0_011` (node 44) | `[-25.397, 247.499, -79.170]` | Bottom-left trailing tendril base |
-| `tendril_04` | `tendril_4_0_014` (node 48) | `[68.315, 247.499, -76.759]` | Bottom-right trailing tendril base |
-| `tendril_05` | `tendril_5_0_05` (node 36) | `[78.023, 247.499, 51.949]` | Right trailing tendril base |
-| `tendril_06` | `tentacle_outer_01` (node 30) | `[0.000, -222.278, 0.000]` | Optic stalk / central back tendril |
-| `optic_back` | `tentacle_outer_01` (node 30) | `[0.000, -222.278, 0.000]` | Back nerve bundle base |
-| `iris` | `root_00` (node 29) | `[0.000, 0.000, 0.000]` | Iris focal tracking |
-| `pupil` | `root_00` (node 29) | `[0.000, 0.000, 0.000]` | Pupil focal dilation |
+| TerraForge Bone | Parent Bone | Source GLTF Joint Node | Minecraft Bind Pivot [X, Y, Z] | Role in Phase 1 |
+|---|---|---|---|---|
+| `root` | *None* | `_rootJoint` | `[0.000, 0.000, 0.000]` | Entity root anchor |
+| `body` | `root` | `root_00` | `[0.000, 0.000, 0.000]` | Sclera & body mass |
+| `tendril_01` | `body` | `tendril_1_0_02` | `[1.544, 247.499, 87.141]` | Top trailing tendril base |
+| `tendril_02` | `body` | `tendril_2_0_08` | `[-83.905, 247.499, -0.993]` | Left trailing tendril base |
+| `tendril_03` | `body` | `tendril_3_0_011` | `[-25.397, 247.499, -79.170]` | Bottom-left trailing tendril base |
+| `tendril_04` | `body` | `tendril_4_0_014` | `[68.315, 247.499, -76.759]` | Bottom-right trailing tendril base |
+| `tendril_05` | `body` | `tendril_5_0_05` | `[78.023, 247.499, 51.949]` | Right trailing tendril base |
+| `tendril_06` | `body` | `tentacle_outer_01` | `[0.000, -222.278, 0.000]` | Optic stalk / central back tendril |
+| `optic_back` | `body` | `tentacle_outer_01` | `[0.000, -222.278, 0.000]` | Back nerve bundle base |
+| `iris` | `body` | `root_00` | `[0.000, 0.000, 0.000]` | Iris focal tracking |
+| `pupil` | `iris` | `root_00` | `[0.000, 0.000, 0.000]` | Pupil focal dilation |
 
 ---
 
-## 4. Normal Matrix Skinning for Non-Uniform Scale
+## 4. Animation Deltas and Invariant Hinge Pivot
 
-When bones scale non-uniformly (e.g., $(0.88, 0.88, 1.35)$ during charge dashes), vertex normals cannot be transformed by the standard affine matrix $M_{{skin}}$ without shearing.
-TerraForge RPG calculates the $3 \\times 3$ normal matrix per bone per frame:
-$$N_{{skin}} = (M_{{skin}}^{{3\\times 3}})^{{-T}}$$
-Normals are transformed via $n' = \\sum_k w_k (N_{{skin, k}} \\cdot n_{{bind}})$ and re-normalized. This produces mathematically correct lighting normals with zero heap allocations during the render loop.
+Animations apply **local delta transformations** onto the authentic bind local matrices:
+$$M_{{local, b}} = M_{{bindLocal, b}} \\cdot M_{{animDelta, b}}$$
+$$M_{{world, b}} = M_{{world, parent}} \\cdot M_{{local, b}}$$
+$$S_{{skin, b}} = M_{{world, b}} \\cdot M_{{invBind, b}}$$
+
+When $M_{{animDelta, b}} = I$ (rest pose), $M_{{world, b}} = M_{{bindWorld, b}}$, yielding $S_{{skin, b}} = I$.
+When a jaw rotates by angle $\\theta$ around its hinge, the rotation is applied at the origin of the joint space, preserving the authentic pivot position with zero drift.
 """
     with open(doc_file, "w", encoding="utf-8") as f:
         f.write(content)

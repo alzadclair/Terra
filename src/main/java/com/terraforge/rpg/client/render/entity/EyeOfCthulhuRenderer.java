@@ -5,12 +5,16 @@ import com.terraforge.rpg.TerraForgeRPG;
 import com.terraforge.rpg.boss.prehardmode.EyeOfCthulhuEntity;
 import com.terraforge.rpg.client.model.EyeOfCthulhuModel;
 import com.terraforge.rpg.client.model.ModModelLayers;
+import com.terraforge.rpg.client.render.entity.state.EyeRenderState;
+import com.terraforge.rpg.client.render.entity.state.EyeRenderStateManager;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Renderer for Eye of Cthulhu boss using Blockbench model with dynamic teeth jaws and optic tendrils.
+ * Renderer for Eye of Cthulhu boss using authentic 3D skeletal mesh with dynamic teeth jaws and optic tendrils.
+ * Obtains per-entity EyeRenderState from EyeRenderStateManager and passes it to the stateless model.
  */
 public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfCthulhuModel> {
     private static final ResourceLocation TEXTURE_P1 =
@@ -20,6 +24,13 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
 
     public EyeOfCthulhuRenderer(EntityRendererProvider.Context context) {
         super(context, new EyeOfCthulhuModel(context.bakeLayer(ModModelLayers.EYE_OF_CTHULHU)), 1.5F);
+    }
+
+    @Override
+    public void render(EyeOfCthulhuEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+        EyeRenderState state = EyeRenderStateManager.getOrCreate(entity);
+        this.model.setRenderState(state);
+        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 
     @Override

@@ -10,30 +10,41 @@ import java.util.List;
 
 /**
  * Represents a bone in a skeletal hierarchy.
- * Tracks bind pose, animated local transforms, and calculates the skinning matrix
- * (worldMatrix * invBindWorldMatrix) to apply skeletal transformations to mesh geometry.
+ * Tracks bind pose matrices and animated delta local transforms.
+ * Computes:
+ *   localMatrix = bindLocalMatrix * animLocalMatrix
+ *   worldMatrix = parentWorld * localMatrix
+ *   skinMatrix  = worldMatrix * invBindWorldMatrix
+ * Under rest pose (anim delta = identity), skinMatrix is exactly the identity matrix.
  */
 public class Bone {
     private final String name;
     private final Bone parent;
     private final List<Bone> children = new ArrayList<>();
 
-    // Bind pose local transform
+    // Bind pose local transform (for legacy or procedural rigs)
     private final Vector3f bindPos = new Vector3f();
     private final Quaternionf bindRot = new Quaternionf();
     private final Vector3f bindScale = new Vector3f(1.0f, 1.0f, 1.0f);
+    private boolean bindMatricesExplicit = false;
 
-    // Bind pose matrices
+    // Bind pose matrices (source of truth from GLTF skin data)
     public final Matrix4f bindLocalMatrix = new Matrix4f();
     public final Matrix4f bindWorldMatrix = new Matrix4f();
     public final Matrix4f invBindWorldMatrix = new Matrix4f();
 
-    // Current animated local transform
-    public final Vector3f localPos = new Vector3f();
-    public final Quaternionf localRot = new Quaternionf();
-    public final Vector3f localScale = new Vector3f(1.0f, 1.0f, 1.0f);
+    // Animated delta transform (defaults: pos=(0,0,0), rot=identity, scale=(1,1,1))
+    public final Vector3f animPos = new Vector3f();
+    public final Quaternionf animRot = new Quaternionf();
+    public final Vector3f animScale = new Vector3f(1.0f, 1.0f, 1.0f);
+
+    // Aliases for backwards compatibility with existing animation tracks & tests
+    public final Vector3f localPos = animPos;
+    public final Quaternionf localRot = animRot;
+    public final Vector3f localScale = animScale;
 
     // Computed runtime matrices
+    public final Matrix4f animLocalMatrix = new Matrix4f();
     public final Matrix4f localMatrix = new Matrix4f();
     public final Matrix4f worldMatrix = new Matrix4f();
     public final Matrix4f skinMatrix = new Matrix4f();
@@ -70,26 +81,45 @@ public class Bone {
         return bindScale;
     }
 
+    public boolean hasExplicitBindMatrices() {
+        return bindMatricesExplicit;
+    }
+
+    public void setExplicitBindMatrices(Matrix4f local, Matrix4f world, Matrix4f invWorld) {
+        this.bindLocalMatrix.set(local);
+        this.bindWorldMatrix.set(world);
+        this.invBindWorldMatrix.set(invWorld);
+        this.bindMatricesExplicit = true;
+        resetToBindPose();
+    }
+
     public void setBindPose(float x, float y, float z, Quaternionf rot, float sx, float sy, float sz) {
         this.bindPos.set(x, y, z);
         this.bindRot.set(rot);
         this.bindScale.set(sx, sy, sz);
+        this.bindLocalMatrix.identity()
+                .translate(bindPos)
+                .rotate(bindRot)
+                .scale(bindScale);
+        this.bindMatricesExplicit = false;
         resetToBindPose();
     }
 
     public void initBindPose() {
-        bindLocalMatrix.identity()
-                .translate(bindPos)
-                .rotate(bindRot)
-                .scale(bindScale);
+        if (!bindMatricesExplicit) {
+            bindLocalMatrix.identity()
+                    .translate(bindPos)
+                    .rotate(bindRot)
+                    .scale(bindScale);
 
-        if (parent != null) {
-            bindWorldMatrix.set(parent.bindWorldMatrix).mul(bindLocalMatrix);
-        } else {
-            bindWorldMatrix.set(bindLocalMatrix);
+            if (parent != null) {
+                bindWorldMatrix.set(parent.bindWorldMatrix).mul(bindLocalMatrix);
+            } else {
+                bindWorldMatrix.set(bindLocalMatrix);
+            }
+
+            invBindWorldMatrix.set(bindWorldMatrix).invert();
         }
-
-        invBindWorldMatrix.set(bindWorldMatrix).invert();
 
         for (Bone child : children) {
             child.initBindPose();
@@ -97,16 +127,29 @@ public class Bone {
     }
 
     public void resetToBindPose() {
-        this.localPos.set(bindPos);
-        this.localRot.set(bindRot);
-        this.localScale.set(bindScale);
+        this.animPos.set(0.0f, 0.0f, 0.0f);
+        this.animRot.identity();
+        this.animScale.set(1.0f, 1.0f, 1.0f);
+        this.animLocalMatrix.identity();
+
+        this.localMatrix.set(bindLocalMatrix);
+
+        if (parent != null) {
+            this.worldMatrix.set(parent.worldMatrix).mul(localMatrix);
+        } else {
+            this.worldMatrix.set(localMatrix);
+        }
+
+        this.skinMatrix.set(worldMatrix).mul(invBindWorldMatrix);
     }
 
     public void updateMatrices() {
-        localMatrix.identity()
-                .translate(localPos)
-                .rotate(localRot)
-                .scale(localScale);
+        animLocalMatrix.identity()
+                .translate(animPos)
+                .rotate(animRot)
+                .scale(animScale);
+
+        localMatrix.set(bindLocalMatrix).mul(animLocalMatrix);
 
         if (parent != null) {
             worldMatrix.set(parent.worldMatrix).mul(localMatrix);
