@@ -363,6 +363,15 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
         if (tag.contains("IsTransitioning")) {
             this.isTransitioning = tag.getBoolean("IsTransitioning");
             this.transitionTicks = tag.getInt("TransitionTicks");
+            if (this.isTransitioning) {
+                setAnimState(EyeAnimState.TRANSITIONING);
+                int elapsed = TRANSITION_DURATION_TICKS - this.transitionTicks;
+                if (elapsed >= TRANSITION_MESH_SWAP_TICK) {
+                    setVisualPhase(EyeVisualPhase.PHASE_2);
+                } else {
+                    setVisualPhase(EyeVisualPhase.TRANSITIONING_P1);
+                }
+            }
         }
     }
 

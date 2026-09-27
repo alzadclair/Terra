@@ -31,8 +31,12 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
         EyeRenderState state = EyeRenderStateManager.getOrCreate(entity);
         this.model.setRenderState(state);
         this.model.setBufferSource(buffer);
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
-        this.model.setBufferSource(null);
+        try {
+            super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        } finally {
+            this.model.setBufferSource(null);
+            this.model.setRenderState(null);
+        }
     }
 
     @Override
