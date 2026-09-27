@@ -29,6 +29,11 @@ neoForge {
         client {
             client()
             loadedMods = [mods.terraforge_rpg]
+            systemProperty 'terraforge.auto_capture_eye', System.getProperty('terraforge.auto_capture_eye', 'false')
+            systemProperty 'terraforge.exit_after_capture', System.getProperty('terraforge.exit_after_capture', 'false')
+            if (Boolean.getBoolean('terraforge.auto_capture_eye')) {
+                programArguments.addAll '--quickPlaySingleplayer', 'New World'
+            }
         }
         server {
             server()

@@ -13,8 +13,18 @@ import net.neoforged.neoforge.network.PacketDistributor;
  */
 public final class ClientInputHandler {
 
+    private static int captureTickDelay = 0;
+
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
+
+        // Automated runtime validation hook
+        if ("true".equalsIgnoreCase(System.getProperty("terraforge.auto_capture_eye"))
+                && !com.terraforge.rpg.client.validation.EyeRuntimeCapture.isFinished()
+                && minecraft.level != null && minecraft.player != null) {
+            com.terraforge.rpg.client.validation.EyeRuntimeCapture.onClientTick(minecraft);
+        }
+
         if (minecraft.player == null) return;
 
         // Open Character Menu (Key K)

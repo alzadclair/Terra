@@ -1,18 +1,8 @@
 """
-Generates the 13 required runtime validation visuals for the Eye of Cthulhu geometry replacement:
-1. eye_new_p1_front.png
-2. eye_new_p1_side.png
-3. eye_new_p1_back.png
-4. eye_new_p1_top.png
-5. eye_new_p1_charge.png
-6. eye_new_transition_start.png
-7. eye_new_transition_swap.png
-8. eye_new_p2_front.png
-9. eye_new_p2_side.png
-10. eye_new_p2_bite.png
-11. eye_new_player_scale.png
-12. eye_old_vs_new_p1.png
-13. eye_old_vs_new_p2.png
+Generates 3D OFFLINE visual validation / geometry previews (Matplotlib software projections)
+for the Eye of Cthulhu geometry replacement and retargeting pass.
+NOTE: These are OFFLINE GEOMETRY PREVIEWS, NOT in-game Minecraft runtime screenshots.
+Real Minecraft in-game screenshots are captured to build/visual_validation/runtime_real/.
 """
 
 import sys
@@ -32,6 +22,8 @@ from render_eye_visual_validation import (
     skin_mesh_textured, to_minecraft_space, render_textured_scene,
     draw_terrain_grid, draw_minecraft_player
 )
+
+OUT_OFFLINE_DIR = PROJECT_ROOT / "build/visual_validation/offline_preview"
 
 def render_scene_custom(verts_world, colors, title, out_path, include_player=True, elev=15, azim=45,
                         xlim=(-4, 4), ylim=(-0.5, 5.0), zlim=(-3, 5), annotations=None,

@@ -29,6 +29,26 @@ public final class TerraForgeClient {
 
         // Register client game bus listeners
         NeoForge.EVENT_BUS.addListener(ClientInputHandler::onClientTick);
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.client.event.RegisterClientCommandsEvent.class, event -> {
+            event.getDispatcher().register(
+                net.minecraft.commands.Commands.literal("terraforge")
+                    .then(net.minecraft.commands.Commands.literal("capture_eye_runtime")
+                        .executes(ctx -> {
+                            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+                            mc.execute(() -> {
+                                com.terraforge.rpg.client.validation.EyeRuntimeCapture.startCapture();
+                                if (mc.player != null) {
+                                    mc.player.displayClientMessage(
+                                        net.minecraft.network.chat.Component.literal("Starting Eye runtime capture sequence to build/visual_validation/runtime_real/"),
+                                        false
+                                    );
+                                }
+                            });
+                            return 1;
+                        })
+                    )
+            );
+        });
         com.terraforge.rpg.client.render.entity.state.EyeRenderStateManager.registerEvents();
     }
 

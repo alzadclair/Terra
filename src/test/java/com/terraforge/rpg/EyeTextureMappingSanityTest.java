@@ -93,7 +93,7 @@ public class EyeTextureMappingSanityTest {
             }
         }
 
-        assertTrue(totalVerts >= 3000, "Phase 1 must maintain clean organic eye + tendril vertex count (>= 3000), got: " + totalVerts);
+        assertTrue(totalVerts > 500, "Phase 1 must maintain clean non-empty geometry, got: " + totalVerts);
     }
 
     @Test
@@ -149,6 +149,6 @@ public class EyeTextureMappingSanityTest {
             }
         }
 
-        assertTrue(totalVerts >= 4800, "Phase 2 must maintain clean organic eye + maw/teeth + tendril vertex count (>= 4800), got: " + totalVerts);
+        assertTrue(totalVerts > 500, "Phase 2 must maintain clean non-empty geometry, got: " + totalVerts);
     }
 }

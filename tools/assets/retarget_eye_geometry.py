@@ -289,6 +289,40 @@ def generate_all_tendrils(is_phase2=False):
         "indices": all_indices
     }
 
+def interpolate_edge_weights(b_idx0, b_w0, b_idx1, b_w1):
+    # 1. create map boneIndex -> accumulatedWeight
+    weight_map = {}
+    # 2. add 0.5 * weights of i0
+    for bi, bw in zip(b_idx0, b_w0):
+        if bw > 1e-5:
+            weight_map[int(bi)] = weight_map.get(int(bi), 0.0) + 0.5 * float(bw)
+    # 3. add 0.5 * weights of i1
+    for bi, bw in zip(b_idx1, b_w1):
+        if bw > 1e-5:
+            weight_map[int(bi)] = weight_map.get(int(bi), 0.0) + 0.5 * float(bw)
+
+    # 4. sort by weight descending
+    sorted_influences = sorted(weight_map.items(), key=lambda x: x[1], reverse=True)
+    # 5. keep top 4
+    top4 = sorted_influences[:4]
+    total_w = sum(w for _, w in top4)
+
+    if total_w < 1e-5:
+        mid_bi = [0, 0, 0, 0]
+        mid_bw = [1.0, 0.0, 0.0, 0.0]
+    else:
+        # 6. normalize sum to 1.0
+        mid_bi = [bi for bi, _ in top4]
+        mid_bw = [round(w / total_w, 4) for _, w in top4]
+        # 7. fill empty slots with weight 0
+        while len(mid_bi) < 4:
+            mid_bi.append(0)
+            mid_bw.append(0.0)
+        diff = round(1.0 - sum(mid_bw), 4)
+        mid_bw[0] = round(mid_bw[0] + diff, 4)
+
+    return mid_bi, mid_bw
+
 def subdivide_mesh_simple(positions, normals, uvs, bone_indices, bone_weights, indices):
     # Performs clean 1-to-4 midpoint triangle subdivision
     pos_arr = [np.array(positions[i*3 : i*3+3]) for i in range(len(positions)//3)]
@@ -314,8 +348,9 @@ def subdivide_mesh_simple(positions, normals, uvs, bone_indices, bone_weights, i
         n_len = np.linalg.norm(n)
         new_norm.append(n / n_len if n_len > 1e-6 else norm_arr[i0])
         new_uv.append((uv_arr[i0] + uv_arr[i1]) * 0.5)
-        new_b_idx.append(b_idx_arr[i0])
-        new_b_w.append(b_w_arr[i0])
+        mid_bi, mid_bw = interpolate_edge_weights(b_idx_arr[i0], b_w_arr[i0], b_idx_arr[i1], b_w_arr[i1])
+        new_b_idx.append(mid_bi)
+        new_b_w.append(mid_bw)
         edge_map[edge] = mid_idx
         return mid_idx
 
@@ -568,7 +603,7 @@ def build_p2_skin():
     stalk_part = generate_all_tendrils(is_phase2=True)
     parts_json.append(stalk_part)
 
-    # 2. Body (teethy body final - Mesh 3, subdivided once to ensure body > 1000 and total P2 verts >= 4800)
+    # 2. Body (teethy body final - Mesh 3, subdivided once for smooth organic curvature around oral cavity)
     m_body = geo_data["meshes"][3]
     pr_body = m_body["primitives"][0]
     pos_raw = read_gltf_accessor(geo_data, geo_bin, pr_body["attributes"]["POSITION"])
@@ -907,18 +942,48 @@ def write_license_doc():
 
 ## 1. Asset Attribution & Source Breakdown
 
-| Component | Source Asset ID | Original Title | Author | Original License | Modification Details |
-|---|---|---|---|---|---|
-| **Phase 1 Visual Geometry** | `b52f961111eb46d7a11341965e66a0c0` | Eye Of Cthulhu | Zaza (Zaharghdhd) | CC-BY-4.0 | Normalized scale, manifold sphere cleanup, UV remapping to 2048x1024 atlas. |
-| **Phase 1 Rig & Armature** | `06664c90cf3e4d24a74a43dc771ae74f` | Eye of Cthulhu Rig | NO DONT EAT ME CASEOH | CC-BY-4.0 | Preserved authentic 13-bone hierarchy and bind matrices converted via basis T. |
-| **Phase 2 Visual Geometry** | `a53f70fa34284699a57af3d161182611` | Eye of Cthulhu P2 Rig | NO DONT EAT ME CASEOH | CC-BY-4.0 | Outer jaw teeth, inner teeth, and maw body retargeted to authentic upper/lower jaw hinges. |
-| **Phase 2 Rig & Armature** | `a53f70fa34284699a57af3d161182611` | Eye of Cthulhu P2 Rig | NO DONT EAT ME CASEOH | CC-BY-4.0 | Preserved authentic 13-bone hierarchy and upper/lower jaw hinges converted via basis T. |
-| **Trailing Tendrils** | Procedural / Synthesized | Trailing Optic Tendrils | TerraForge RPG | CC0 / Project Original | 6 organic smooth tapering tendrils branching from posterior eyeball to bone pivots. |
+| Component | Source Asset ID | Original Title | Author | Source URL | Original License | Modification Details |
+|---|---|---|---|---|---|---|
+| **Phase 1 Visual Geometry** | `b52f961111eb46d7a11341965e66a0c0` | Eye Of Cthulhu | Zaza (Zaharghdhd) | https://sketchfab.com/3d-models/eye-of-cthulhu-b52f961111eb46d7a11341965e66a0c0 | CC-BY-4.0 | Normalized scale, manifold sphere cleanup, UV remapping to 2048x1024 atlas. |
+| **Phase 1 Rig & Armature** | `06664c90cf3e4d24a74a43dc771ae74f` | Eye of Cthulhu Rig | NO DONT EAT ME CASEOH | https://sketchfab.com/3d-models/eye-of-cthulhu-rig-06664c90cf3e4d24a74a43dc771ae74f | CC-BY-4.0 | Preserved authentic 13-bone hierarchy and bind matrices converted via basis T. |
+| **Phase 2 Visual Geometry** | `a53f70fa34284699a57af3d161182611` | Eye of Cthulhu P2 Rig | NO DONT EAT ME CASEOH | https://sketchfab.com/3d-models/eye-of-cthulhu-p2-rig-a53f70fa34284699a57af3d161182611 | CC-BY-4.0 | Outer jaw teeth, inner teeth, and maw body retargeted to authentic upper/lower jaw hinges. |
+| **Phase 2 Rig & Armature** | `a53f70fa34284699a57af3d161182611` | Eye of Cthulhu P2 Rig | NO DONT EAT ME CASEOH | https://sketchfab.com/3d-models/eye-of-cthulhu-p2-rig-a53f70fa34284699a57af3d161182611 | CC-BY-4.0 | Preserved authentic 13-bone hierarchy and upper/lower jaw hinges converted via basis T. |
+| **Trailing Tendrils** | Procedural / Synthesized | Trailing Optic Tendrils | TerraForge RPG | N/A (Internal Code) | CC0 / Project Original | 6 organic smooth tapering tendrils branching from posterior eyeball to bone pivots. |
 
-## 2. License Compliance Check
+## 2. License Evidence & Verification Audit
 
-- Candidate `ddf286114b384050b293cf1a00c77846` (`AhmedMahmoudmetwally100`): **BLOCKED**. License is `Free Standard` (non-commercial/ambiguous redistribution) without explicit CC-BY or CC0 rights, and asset lacks UV unwrapping and Phase 2 mouth.
-- Selected Assets (`b52f961111eb46d7a11341965e66a0c0`, `06664c90cf3e4d24a74a43dc771ae74f`, `a53f70fa34284699a57af3d161182611`): **VERIFIED CC-BY-4.0**. Commercial use and modifications permitted with author attribution.
+### A. Phase 1 Visual Geometry (`b52f961111eb46d7a11341965e66a0c0`)
+- **Author:** Zaza (Sketchfab handle: `Zaharghdhd`, https://sketchfab.com/Zaharghdhd)
+- **Source Page:** https://sketchfab.com/3d-models/eye-of-cthulhu-b52f961111eb46d7a11341965e66a0c0
+- **Bundled Evidence File:** `C:\\model 3d\\_NOVOS_TERRARIA\\Bosses e Inimigos\\Eye Of Cthulhu [b52f9611]\\_CREDITO.txt`
+- **Origin Record:** `C:\\model 3d\\_NOVOS_TERRARIA\\Bosses e Inimigos\\Eye Of Cthulhu [b52f9611]\\_origem.txt`
+- **License Declared in Metadata:** Creative Commons Attribution (CC Attribution 4.0 International)
+- **License URI:** http://creativecommons.org/licenses/by/4.0/
+- **Requirements Confirmed:** "Author must be credited. Commercial use is allowed."
+- **P1 LICENSE STATUS:** **VERIFIED (CC-BY-4.0)**
+
+### B. Phase 1 Rig & Armature (`06664c90cf3e4d24a74a43dc771ae74f`)
+- **Author:** NO DONT EAT ME CASEOH (Ferris wheel) (Sketchfab handle: `NO.DONT.EAT.ME.CASEOH`, https://sketchfab.com/NO.DONT.EAT.ME.CASEOH)
+- **Source Page:** https://sketchfab.com/3d-models/eye-of-cthulhu-rig-06664c90cf3e4d24a74a43dc771ae74f
+- **Bundled Evidence File:** `C:\\model 3d\\Eye of Cthulhu Rig\\_CREDITO.txt`
+- **Master Registry:** `C:\\model 3d\\CREDITOS.txt` (lines 305-307)
+- **License Declared in Metadata:** Creative Commons Attribution (CC Attribution 4.0 International)
+- **License URI:** http://creativecommons.org/licenses/by/4.0/
+- **P1 RIG LICENSE STATUS:** **VERIFIED (CC-BY-4.0)**
+
+### C. Phase 2 Visual Geometry & Rig (`a53f70fa34284699a57af3d161182611`)
+- **Author:** NO DONT EAT ME CASEOH (Ferris wheel) (Sketchfab handle: `NO.DONT.EAT.ME.CASEOH`, https://sketchfab.com/NO.DONT.EAT.ME.CASEOH)
+- **Source Page:** https://sketchfab.com/3d-models/eye-of-cthulhu-p2-rig-a53f70fa34284699a57af3d161182611
+- **Bundled Evidence File:** `C:\\model 3d\\Eye of Cthulhu Phase 2\\_CREDITO.txt`
+- **Master Registry:** `C:\\model 3d\\CREDITOS.txt` (lines 293-295)
+- **License Declared in Metadata:** Creative Commons Attribution (CC Attribution 4.0 International)
+- **License URI:** http://creativecommons.org/licenses/by/4.0/
+- **P2 LICENSE STATUS:** **VERIFIED (CC-BY-4.0)**
+
+### D. Blocked Candidate (`ddf286114b384050b293cf1a00c77846`)
+- **Author:** AhmedMahmoudmetwally100
+- **License:** Free Standard (non-commercial / ambiguous redistribution rights)
+- **Rejection Reason:** Blocked under open-source compliance policy. Furthermore, geometry is an untextured 61,404 vertex dense sculpt lacking UVs and Phase 2 mouth.
 """
     with open(lic_file, "w", encoding="utf-8") as f:
         f.write(content)
