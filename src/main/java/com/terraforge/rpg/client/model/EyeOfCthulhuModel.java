@@ -38,9 +38,18 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     public static final ResourceLocation MESH_P2 =
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "models/entity/boss/eye_of_cthulhu_p2.obj");
 
+    /**
+     * Unified single source of truth for Eye of Cthulhu 3D model scale in Minecraft.
+     * The raw asset eyeball has a diameter of 445.6 units; scaling by 0.007F yields a 3.12m
+     * eyeball body (with ~5.5m total length including tendrils), matching the 2.5x2.5m hitbox.
+     */
+    public static final float BASE_SCALE = 0.007F;
+
     private final ModelPart root;
     private EyeRenderState currentRenderState;
     private EyeOfCthulhuEntity currentEntity;
+    private java.util.UUID lastLoggedEntityUuid = null;
+    private Boolean lastLoggedPhase2 = null;
 
     public EyeOfCthulhuModel(ModelPart root) {
         this.root = root;
@@ -145,8 +154,8 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     public void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, int color) {
         poseStack.pushPose();
 
-        // Position model root in entity coordinate frame
-        poseStack.translate(0.0, 1.0, 0.0);
+        // Slight vertical offset so the 3.1m eyeball base sits naturally right above ground level
+        poseStack.translate(0.0, -0.1, 0.0);
 
         EyeRenderState state = this.currentRenderState;
         float yaw = state != null ? state.getYaw() : 0.0f;
@@ -154,14 +163,22 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         float roll = state != null ? state.getRoll() : 0.0f;
 
         // Apply entity orientation rotations (yaw, pitch, bank roll)
-        poseStack.mulPose(new Quaternionf(new AxisAngle4f(-yaw, 0.0f, 1.0f, 0.0f)));
-        poseStack.mulPose(new Quaternionf(new AxisAngle4f(pitch, 1.0f, 0.0f, 0.0f)));
+        if (yaw != 0.0f) {
+            poseStack.mulPose(new Quaternionf().rotationY(yaw));
+        }
+        if (pitch != 0.0f) {
+            poseStack.mulPose(new Quaternionf().rotationX(pitch));
+        }
         if (roll != 0.0f) {
-            poseStack.mulPose(new Quaternionf(new AxisAngle4f(roll, 0.0f, 0.0f, 1.0f)));
+            poseStack.mulPose(new Quaternionf().rotationZ(roll));
         }
 
-        // Base model scale
-        poseStack.scale(0.04f, 0.04f, 0.04f);
+        // Orient model from skin.json asset space (cornea=-Y, stalk=+Y, upper_jaw=+Z, lower_jaw=-Z)
+        // to Minecraft model space (cornea=-Z [forward], stalk=+Z [backward], upper_jaw=-Y [top], lower_jaw=+Y [bottom])
+        poseStack.mulPose(new Quaternionf().rotationX((float) (Math.PI / 2.0)));
+
+        // Base model scale (single authoritative source of truth)
+        poseStack.scale(BASE_SCALE, BASE_SCALE, BASE_SCALE);
 
         boolean isPhase2 = currentEntity != null && currentEntity.isRenderPhase2();
         ResourceLocation skinLoc = isPhase2 ? SKIN_P2 : SKIN_P1;
@@ -181,6 +198,11 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
             if (skeleton != null) {
                 instance.skin(skeleton);
             }
+
+            if (currentEntity != null) {
+                logDebugIfNeeded(currentEntity, isPhase2, skeleton, instance, meshData);
+            }
+
             instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
         } catch (Exception e) {
             TerraLogger.error("CLIENT", "Failed to render skinned Eye of Cthulhu mesh, falling back to static OBJ mesh", e);
@@ -194,5 +216,33 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         }
 
         poseStack.popPose();
+    }
+
+    private void logDebugIfNeeded(EyeOfCthulhuEntity entity, boolean isPhase2, Skeleton skeleton,
+                                  TerraSkinnedMeshInstance instance, TerraSkinnedMeshData meshData) {
+        if (lastLoggedEntityUuid == null || !lastLoggedEntityUuid.equals(entity.getUUID())
+                || lastLoggedPhase2 == null || lastLoggedPhase2 != isPhase2) {
+            lastLoggedEntityUuid = entity.getUUID();
+            lastLoggedPhase2 = isPhase2;
+
+            float[] bounds = meshData.computeBounds();
+            float extX = bounds[3] - bounds[0];
+            float extY = bounds[4] - bounds[1];
+            float extZ = bounds[5] - bounds[2];
+
+            org.joml.Matrix4f rootMatrix = (skeleton != null && skeleton.getRoot() != null)
+                    ? skeleton.getRoot().worldMatrix : new org.joml.Matrix4f();
+
+            TerraLogger.info("CLIENT", String.format(
+                    "[EyeOfCthulhu 3D Render] Entity: %s (Phase %s) | VisualPhase: %s | Skeleton: %d | MeshInstance: %d | Scale: %.4f | MeshBounds: [%.1f, %.1f, %.1f] (World: %.2fm x %.2fm x %.2fm) | RootMatrix pos=(%.2f, %.2f, %.2f)",
+                    entity.getUUID(), isPhase2 ? "2" : "1", entity.getVisualPhase(),
+                    (skeleton != null ? skeleton.hashCode() : 0),
+                    instance.hashCode(),
+                    BASE_SCALE,
+                    extX, extY, extZ,
+                    extX * BASE_SCALE, extZ * BASE_SCALE, extY * BASE_SCALE,
+                    rootMatrix.m30(), rootMatrix.m31(), rootMatrix.m32()
+            ));
+        }
     }
 }

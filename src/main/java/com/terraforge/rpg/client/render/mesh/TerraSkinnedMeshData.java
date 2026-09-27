@@ -161,6 +161,26 @@ public class TerraSkinnedMeshData {
         return parts;
     }
 
+    public float[] computeBounds() {
+        float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY, minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY, maxZ = Float.NEGATIVE_INFINITY;
+        for (PartData part : parts) {
+            float[] pos = part.bindPositions;
+            for (int i = 0; i < pos.length; i += 3) {
+                float x = pos[i];
+                float y = pos[i + 1];
+                float z = pos[i + 2];
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+                if (z < minZ) minZ = z;
+                if (z > maxZ) maxZ = z;
+            }
+        }
+        return new float[]{minX, minY, minZ, maxX, maxY, maxZ};
+    }
+
     public TerraSkinnedMeshInstance createInstance() {
         return new TerraSkinnedMeshInstance(this);
     }

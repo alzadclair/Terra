@@ -67,9 +67,14 @@ public final class TerraSkinnedMeshLoader {
                     totalVerts += p.vertexCount;
                 }
 
+                float[] bounds = data.computeBounds();
+                float extX = bounds[3] - bounds[0];
+                float extY = bounds[4] - bounds[1];
+                float extZ = bounds[5] - bounds[2];
+
                 TerraLogger.info("CLIENT", String.format(
-                        "Preloaded TerraForge skinned mesh: %s (%d parts, %d vertices) in %.2f ms",
-                        loc, data.getParts().size(), totalVerts, elapsedMs
+                        "Preloaded TerraForge skinned mesh: %s (%d parts, %d vertices, bounds=[%.1f, %.1f, %.1f]) in %.2f ms",
+                        loc, data.getParts().size(), totalVerts, extX, extY, extZ, elapsedMs
                 ));
             } catch (Exception e) {
                 TerraLogger.error("CLIENT", "Failed to preload skinned mesh: " + loc, e);

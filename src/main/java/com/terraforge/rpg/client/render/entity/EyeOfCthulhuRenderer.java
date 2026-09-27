@@ -35,7 +35,7 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
 
     @Override
     protected void scale(EyeOfCthulhuEntity entity, PoseStack poseStack, float partialTick) {
-        poseStack.scale(2.8F, 2.8F, 2.8F);
+        // Authoritative model scale and orientation are centralized in EyeOfCthulhuModel
     }
 
     @Override
