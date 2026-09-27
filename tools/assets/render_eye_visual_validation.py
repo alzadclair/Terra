@@ -26,6 +26,24 @@ def rot_x(deg):
         [0, 0, 0, 1]
     ], dtype=np.float64)
 
+def rot_y(deg):
+    r = np.radians(deg)
+    return np.array([
+        [np.cos(r), 0, np.sin(r), 0],
+        [0, 1, 0, 0],
+        [-np.sin(r), 0, np.cos(r), 0],
+        [0, 0, 0, 1]
+    ], dtype=np.float64)
+
+def rot_z(deg):
+    r = np.radians(deg)
+    return np.array([
+        [np.cos(r), -np.sin(r), 0, 0],
+        [np.sin(r), np.cos(r), 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1]
+    ], dtype=np.float64)
+
 def skin_mesh(data, bone_transforms):
     raw_bones = data["bones"]
     bone_names = [b["name"] if isinstance(b, dict) else b for b in raw_bones]
@@ -85,6 +103,30 @@ def render_projection(verts, title, out_path, color='crimson'):
     plt.close()
     print(f"Rendered: {out_path}")
 
+def render_multi_phase_grid(quads, title, out_path):
+    fig = plt.figure(figsize=(16, 14), dpi=150)
+    for idx, (verts, subtitle, col) in enumerate(quads, 1):
+        ax = fig.add_subplot(2, 2, idx, projection='3d')
+        step = max(1, len(verts) // 2000)
+        sub = verts[::step]
+        ax.scatter(sub[:, 0], sub[:, 2], sub[:, 1], c=col, s=2.0, alpha=0.6, edgecolors='none')
+        ax.set_title(subtitle, fontsize=12, fontweight='bold', pad=10)
+        ax.set_xlabel('X (Lateral)', fontsize=8)
+        ax.set_ylabel('Z (Depth)', fontsize=8)
+        ax.set_zlabel('Y (Vertical)', fontsize=8)
+        ax.set_xlim(-150, 150)
+        ax.set_ylim(-200, 300)
+        ax.set_zlim(-150, 150)
+        ax.view_init(elev=20, azim=45)
+        ax.grid(True, linestyle=':', alpha=0.5)
+
+    fig.suptitle(title, fontsize=16, fontweight='bold', y=0.98)
+    plt.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(out_path, dpi=150)
+    plt.close()
+    print(f"Rendered: {out_path}")
+
 def main():
     OUT_EYE_DIR.mkdir(parents=True, exist_ok=True)
     OUT_RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
@@ -94,25 +136,44 @@ def main():
     with open(MODELS_DIR / "eye_of_cthulhu_p2.skin.json", "r") as f:
         p2_data = json.load(f)
 
+    raw_p1_bones = [b["name"] if isinstance(b, dict) else b for b in p1_data["bones"]]
+    inv_p1 = [np.array(m, dtype=np.float64).reshape((4, 4), order="F") for m in p1_data["inverseBindMatrices"]]
+    bind_p1 = {bname: np.linalg.inv(inv_p1[i]) for i, bname in enumerate(raw_p1_bones)}
+
     raw_p2_bones = [b["name"] if isinstance(b, dict) else b for b in p2_data["bones"]]
     inv_p2 = [np.array(m, dtype=np.float64).reshape((4, 4), order="F") for m in p2_data["inverseBindMatrices"]]
     bind_p2 = {bname: np.linalg.inv(inv_p2[i]) for i, bname in enumerate(raw_p2_bones)}
 
-    # 1. Phase 1 Rest Pose
+    # 1. Phase 1 Rest Pose (Identity Skinning on P1 Skeleton)
     v_p1_rest = skin_mesh(p1_data, {})
     render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Rest Pose (Identity Skinning)",
                       OUT_EYE_DIR / "eye_p1_rest_pose.png", color='royalblue')
-    render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Runtime Rest Pose",
+    render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Runtime Rest Pose (Pure P1 Skeleton)",
                       OUT_RUNTIME_DIR / "eye_p1_runtime_rest.png", color='royalblue')
+    render_projection(v_p1_rest, "Eye of Cthulhu Phase 1 — Fixed Phase-Specific Skeleton Rest Pose",
+                      OUT_RUNTIME_DIR / "eye_p1_fixed.png", color='royalblue')
 
-    # 2. Phase 2 Rest Pose
+    # 2. Phase 1 Transition Pose (P1 Skeleton Articulation)
+    p1_trans_transforms = dict(bind_p1)
+    p1_trans_transforms["body"] = bind_p1["body"] @ rot_x(15.0) @ rot_y(40.0) @ rot_z(25.0)
+    p1_trans_transforms["tendril_01"] = bind_p1["tendril_01"] @ rot_x(35.0)
+    p1_trans_transforms["tendril_02"] = bind_p1["tendril_02"] @ rot_x(-30.0)
+    p1_trans_transforms["tendril_03"] = bind_p1["tendril_03"] @ rot_x(40.0)
+    p1_trans_transforms["tendril_04"] = bind_p1["tendril_04"] @ rot_x(-35.0)
+    p1_trans_transforms["tendril_05"] = bind_p1["tendril_05"] @ rot_x(30.0)
+    p1_trans_transforms["tendril_06"] = bind_p1["tendril_06"] @ rot_x(-25.0)
+    v_p1_trans = skin_mesh(p1_data, p1_trans_transforms)
+    render_projection(v_p1_trans, "Eye of Cthulhu Transition — Pure P1 Skeleton Articulation (Pre-Phase 2)",
+                      OUT_RUNTIME_DIR / "eye_transition_fixed.png", color='teal')
+
+    # 3. Phase 2 Rest Pose
     v_p2_rest = skin_mesh(p2_data, {})
     render_projection(v_p2_rest, "Eye of Cthulhu Phase 2 — Rest Pose (Neutral Cornea Maw)",
                       OUT_EYE_DIR / "eye_p2_rest_pose.png", color='darkred')
     render_projection(v_p2_rest, "Eye of Cthulhu Phase 2 — Runtime Neutral Rest",
                       OUT_RUNTIME_DIR / "eye_p2_runtime_rest.png", color='darkred')
 
-    # 3. Phase 2 Bite Pose (Articulated Maw)
+    # 4. Phase 2 Bite Pose (Articulated Maw on P2 Skeleton)
     p2_bite_transforms = dict(bind_p2)
     # Rotate upper jaw +35 deg around its hinge pivot [0.018, 12.302, 0.144]
     p2_bite_transforms["upper_jaw"] = bind_p2["upper_jaw"] @ rot_x(35.0)
@@ -124,8 +185,10 @@ def main():
                       OUT_EYE_DIR / "eye_p2_bite_pose.png", color='firebrick')
     render_projection(v_p2_bite, "Eye of Cthulhu Phase 2 — Runtime Articulated Bite (+35°/-35°)",
                       OUT_RUNTIME_DIR / "eye_p2_runtime_bite.png", color='firebrick')
+    render_projection(v_p2_bite, "Eye of Cthulhu Phase 2 — Fixed Phase-Specific Skeleton Bite (+35°/-35°)",
+                      OUT_RUNTIME_DIR / "eye_p2_fixed.png", color='firebrick')
 
-    # 4. Phase 2 Tendril Wave
+    # 5. Phase 2 Tendril Wave
     p2_wave_transforms = dict(bind_p2)
     p2_wave_transforms["tendril_01"] = bind_p2["tendril_01"] @ rot_x(25.0)
     p2_wave_transforms["tendril_02"] = bind_p2["tendril_02"] @ rot_x(-20.0)
@@ -138,6 +201,17 @@ def main():
                       OUT_EYE_DIR / "eye_p2_tendril_wave.png", color='purple')
     render_projection(v_p2_wave, "Eye of Cthulhu Phase 2 — Runtime Tendril Flexion",
                       OUT_RUNTIME_DIR / "eye_p2_runtime_tendrils.png", color='purple')
+
+    # 6. Multi-Phase 4-Quadrant Validation (P1 Idle, P1 Transition, P2 Neutral, P2 Bite)
+    quads = [
+        (v_p1_rest, "Eye A: Phase 1 Idle (P1 Skeleton, 4644 verts)", 'royalblue'),
+        (v_p1_trans, "Eye B: Phase 1 Transition (P1 Skeleton, 4644 verts)", 'teal'),
+        (v_p2_rest, "Eye C: Phase 2 Neutral (P2 Skeleton, 6254 verts)", 'darkred'),
+        (v_p2_bite, "Eye D: Phase 2 Bite (+35°/-35°, P2 Skeleton, 6254 verts)", 'firebrick'),
+    ]
+    render_multi_phase_grid(quads,
+                            "TerraForge RPG — Eye of Cthulhu Phase-Specific Skeletal Isolation",
+                            OUT_RUNTIME_DIR / "eye_multi_phase_fixed.png")
 
 if __name__ == "__main__":
     main()

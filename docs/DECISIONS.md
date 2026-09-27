@@ -87,3 +87,32 @@ Este documento registra todas as decisões técnicas fundamentais, justificativa
      - `RegisterClientReloadListenersEvent` (F3+T): limpa instâncias e recarrega meshes.
   4. Comando de depuração para desenvolvedores `/terraforge debug eye state <state>` adicionado para validação em runtime de qualquer fase ou animação.
 
+---
+
+### ADR 9: Phase-Specific Skeletons and Mesh Pairing (`EyeRenderState` Dual-Skeleton Architecture)
+* **Data:** 2026-09-26
+* **Status:** Aprovado e Implementado
+* **Contexto:**
+  - As malhas e rigs originais exportados dos GLTFs canônicos (`eye_of_cthulhu_p1.skin.json` e `eye_of_cthulhu_p2.skin.json`) possuem poses de bind matematicamente distintas:
+    - Na Fase 1, o osso `upper_jaw` está posicionado próximo à origem corporal; o `optic_back` possui deslocamento diferente e o `tendril_06` possui amarração vertical específica.
+    - Na Fase 2, os ossos `upper_jaw` e `lower_jaw` articulam em torno de pivôs de charneira reais da boca ($[0.018, 12.302, 0.144]$ e $[0.018, 10.149, -4.324]$).
+  - Inicializar todos os `EyeRenderState` usando exclusivamente o esqueleto de `SKIN_EYE_P2` causava divergência geométrica severa na Fase 1 ($M_{world, P2} \times M_{invBind, P1} \neq \mathbf{I}$), com deformações de vértices de até 784 unidades.
+* **Decisão:**
+  1. **P1 and P2 currently use phase-specific bind skeletons.**
+  2. Não unificar os rigs em um híbrido artificial que perderia a fidelidade canônica com os modelos GLTF do repositório de assets.
+  3. `EyeRenderState` foi refatorado para manter pares de esqueletos e controladores de animação dedicados:
+     - `skeletonP1` e `skeletonP2` (gerados via `EyeSkeletonFactory.create(meshDataP1)` e `EyeSkeletonFactory.create(meshDataP2)`).
+     - `controllerP1` e `controllerP2` (`AnimationController` independentes para P1 e P2).
+     - `instanceP1` e `instanceP2` (`TerraSkinnedMeshInstance` dedicadas).
+  4. **Regra Absoluta de Pareamento:**
+     - Fase 1 (`phaseNumber < 2`): utiliza estritamente `meshDataP1`, `skeletonP1`, `instanceP1` e `controllerP1`.
+     - Fase 2 (`phaseNumber >= 2`): utiliza estritamente `meshDataP2`, `skeletonP2`, `instanceP2` e `controllerP2`.
+     - Nunca combinar a malha P1 com o esqueleto P2, nem a malha P2 com o esqueleto P1.
+  5. **Comportamento em Transição:**
+     - Durante o estado `TRANSITIONING`, enquanto a IA do servidor mantém `phaseNumber < 2`, o cliente renderiza a geometria P1 com `skeletonP1` e `controllerP1` executando o clip `phase_transition`. No tick exato em que a fase muda para Fase 2 no servidor, o modelo comuta atomicamente para `instanceP2` e `skeletonP2`. Zero frames de deformação inválida.
+  6. **Validação Automatizada:**
+     - `EyeRuntimePhaseSkeletonTest` valida que tanto P1 quanto P2 mantêm erro de identidade de rest pose $< 10^{-4}$ em runtime.
+     - Teste negativo comprova que pareamentos cruzados produzem erro de distorção $> 10$ unidades (confirmando a necessidade matemática da separação).
+     - `MultiEyeRenderStateTest` valida 5 Eyes simultâneos em fases mistas sem qualquer contaminação cruzada.
+
+

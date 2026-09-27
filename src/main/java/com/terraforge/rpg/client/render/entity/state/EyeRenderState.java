@@ -17,8 +17,10 @@ import java.util.UUID;
 public class EyeRenderState {
     private final UUID entityUuid;
     private int entityId;
-    private final Skeleton skeleton;
-    private final AnimationController animController;
+    private final Skeleton skeletonP1;
+    private final Skeleton skeletonP2;
+    private final AnimationController controllerP1;
+    private final AnimationController controllerP2;
     private TerraSkinnedMeshInstance instanceP1;
     private TerraSkinnedMeshInstance instanceP2;
     private float lastAgeInTicks = -1.0f;
@@ -26,17 +28,34 @@ public class EyeRenderState {
     private float pitch;
     private float yaw;
 
-    public EyeRenderState(UUID entityUuid, Skeleton skeleton, AnimationController animController) {
+    public EyeRenderState(UUID entityUuid, Skeleton skeletonP1, Skeleton skeletonP2,
+                          AnimationController controllerP1, AnimationController controllerP2) {
         this.entityUuid = entityUuid;
-        this.skeleton = skeleton;
-        this.animController = animController;
+        this.skeletonP1 = skeletonP1;
+        this.skeletonP2 = skeletonP2;
+        this.controllerP1 = controllerP1;
+        this.controllerP2 = controllerP2;
+    }
+
+    public EyeRenderState(UUID entityUuid, Skeleton skeleton, AnimationController animController) {
+        this(entityUuid, skeleton, skeleton, animController, animController);
+    }
+
+    public static EyeRenderState create(UUID entityUuid, TerraSkinnedMeshData meshDataP1, TerraSkinnedMeshData meshDataP2) {
+        Skeleton skel1 = EyeSkeletonFactory.create(meshDataP1);
+        Skeleton skel2 = EyeSkeletonFactory.create(meshDataP2);
+        AnimationController ctrl1 = EyeOfCthulhuArmature.createController();
+        AnimationController ctrl2 = EyeOfCthulhuArmature.createController();
+        ctrl1.play("idle", true);
+        ctrl2.play("phase2_idle", true);
+        return new EyeRenderState(entityUuid, skel1, skel2, ctrl1, ctrl2);
     }
 
     public static EyeRenderState create(UUID entityUuid, TerraSkinnedMeshData meshData) {
         Skeleton skel = EyeSkeletonFactory.create(meshData);
         AnimationController ctrl = EyeOfCthulhuArmature.createController();
         ctrl.play("idle", true);
-        return new EyeRenderState(entityUuid, skel, ctrl);
+        return new EyeRenderState(entityUuid, skel, skel, ctrl, ctrl);
     }
 
     public UUID getEntityUuid() {
@@ -52,11 +71,43 @@ public class EyeRenderState {
     }
 
     public Skeleton getSkeleton() {
-        return skeleton;
+        return skeletonP1;
+    }
+
+    public Skeleton getSkeleton(boolean isPhase2) {
+        return isPhase2 ? skeletonP2 : skeletonP1;
+    }
+
+    public Skeleton getSkeletonForPhase(int phase) {
+        return phase >= 2 ? skeletonP2 : skeletonP1;
+    }
+
+    public Skeleton getSkeletonP1() {
+        return skeletonP1;
+    }
+
+    public Skeleton getSkeletonP2() {
+        return skeletonP2;
     }
 
     public AnimationController getAnimController() {
-        return animController;
+        return controllerP1;
+    }
+
+    public AnimationController getAnimController(boolean isPhase2) {
+        return isPhase2 ? controllerP2 : controllerP1;
+    }
+
+    public AnimationController getAnimControllerForPhase(int phase) {
+        return phase >= 2 ? controllerP2 : controllerP1;
+    }
+
+    public AnimationController getControllerP1() {
+        return controllerP1;
+    }
+
+    public AnimationController getControllerP2() {
+        return controllerP2;
     }
 
     public float getLastAgeInTicks() {
@@ -103,6 +154,10 @@ public class EyeRenderState {
             instanceP2 = meshData.createInstance();
         }
         return instanceP2;
+    }
+
+    public TerraSkinnedMeshInstance getMeshInstance(boolean isPhase2, TerraSkinnedMeshData meshData) {
+        return isPhase2 ? getOrCreateInstanceP2(meshData) : getOrCreateInstanceP1(meshData);
     }
 
     public void resetInstances() {

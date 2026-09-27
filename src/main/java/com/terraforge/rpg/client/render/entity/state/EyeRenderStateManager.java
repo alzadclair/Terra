@@ -34,8 +34,9 @@ public final class EyeRenderStateManager {
     public static EyeRenderState getOrCreate(EyeOfCthulhuEntity entity) {
         return STATES.computeIfAbsent(entity.getUUID(), uuid -> {
             try {
-                TerraSkinnedMeshData data = TerraSkinnedMeshLoader.getOrLoad(TerraSkinnedMeshLoader.SKIN_EYE_P2);
-                EyeRenderState state = EyeRenderState.create(uuid, data);
+                TerraSkinnedMeshData dataP1 = TerraSkinnedMeshLoader.getOrLoad(TerraSkinnedMeshLoader.SKIN_EYE_P1);
+                TerraSkinnedMeshData dataP2 = TerraSkinnedMeshLoader.getOrLoad(TerraSkinnedMeshLoader.SKIN_EYE_P2);
+                EyeRenderState state = EyeRenderState.create(uuid, dataP1, dataP2);
                 state.setEntityId(entity.getId());
                 return state;
             } catch (Exception e) {

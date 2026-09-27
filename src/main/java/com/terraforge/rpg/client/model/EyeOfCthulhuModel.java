@@ -61,11 +61,21 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     }
 
     public Skeleton getSkeleton() {
-        return currentRenderState != null ? currentRenderState.getSkeleton() : null;
+        boolean isPhase2 = currentEntity != null && currentEntity.getCurrentPhase().phaseNumber() >= 2;
+        return currentRenderState != null ? currentRenderState.getSkeleton(isPhase2) : null;
+    }
+
+    public Skeleton getSkeleton(boolean isPhase2) {
+        return currentRenderState != null ? currentRenderState.getSkeleton(isPhase2) : null;
     }
 
     public AnimationController getAnimController() {
-        return currentRenderState != null ? currentRenderState.getAnimController() : null;
+        boolean isPhase2 = currentEntity != null && currentEntity.getCurrentPhase().phaseNumber() >= 2;
+        return currentRenderState != null ? currentRenderState.getAnimController(isPhase2) : null;
+    }
+
+    public AnimationController getAnimController(boolean isPhase2) {
+        return currentRenderState != null ? currentRenderState.getAnimController(isPhase2) : null;
     }
 
     @Override
@@ -114,7 +124,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
             case DYING -> "death";
         };
 
-        AnimationController animController = state.getAnimController();
+        AnimationController animController = state.getAnimController(isPhase2);
         if (!animController.getCurrentClipName().equals(targetClip)) {
             float blendDur = (animState == EyeOfCthulhuEntity.EyeAnimState.HURT || animState == EyeOfCthulhuEntity.EyeAnimState.PHASE2_BITE)
                     ? 0.10f : 0.20f;
@@ -128,7 +138,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         float deltaTime = deltaTicks * 0.05f;
 
         animController.update(deltaTime);
-        animController.apply(state.getSkeleton());
+        animController.apply(state.getSkeleton(isPhase2));
     }
 
     @Override
@@ -167,7 +177,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
                     ? (isPhase2 ? state.getOrCreateInstanceP2(meshData) : state.getOrCreateInstanceP1(meshData))
                     : meshData.createInstance();
 
-            Skeleton skeleton = (state != null) ? state.getSkeleton() : null;
+            Skeleton skeleton = (state != null) ? state.getSkeleton(isPhase2) : null;
             if (skeleton != null) {
                 instance.skin(skeleton);
             }

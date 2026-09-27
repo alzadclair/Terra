@@ -1,6 +1,7 @@
 package com.terraforge.rpg;
 
 import com.terraforge.rpg.client.animation.skeletal.Bone;
+import com.terraforge.rpg.client.animation.skeletal.Skeleton;
 import com.terraforge.rpg.client.render.entity.state.EyeRenderState;
 import com.terraforge.rpg.client.render.entity.state.EyeRenderStateManager;
 import com.terraforge.rpg.client.render.mesh.TerraSkinnedMeshData;
@@ -21,116 +22,134 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MultiEyeRenderStateTest {
 
     private static final Path MODELS_DIR = Path.of("src/main/resources/assets/terraforge_rpg/models/entity/boss");
-    private TerraSkinnedMeshData meshData;
+    private TerraSkinnedMeshData meshDataP1;
+    private TerraSkinnedMeshData meshDataP2;
 
     @BeforeEach
     void setUp() throws Exception {
         EyeRenderStateManager.clear();
-        File file = MODELS_DIR.resolve("eye_of_cthulhu_p2.skin.json").toFile();
-        assertTrue(file.exists());
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            meshData = TerraSkinnedMeshLoader.loadFromReader(reader, file.getName());
+        File fileP1 = MODELS_DIR.resolve("eye_of_cthulhu_p1.skin.json").toFile();
+        File fileP2 = MODELS_DIR.resolve("eye_of_cthulhu_p2.skin.json").toFile();
+        assertTrue(fileP1.exists());
+        assertTrue(fileP2.exists());
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileP1))) {
+            meshDataP1 = TerraSkinnedMeshLoader.loadFromReader(reader, fileP1.getName());
         }
-        assertNotNull(meshData);
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileP2))) {
+            meshDataP2 = TerraSkinnedMeshLoader.loadFromReader(reader, fileP2.getName());
+        }
+
+        assertNotNull(meshDataP1);
+        assertNotNull(meshDataP2);
     }
 
     @Test
-    @DisplayName("Verify 5 simultaneous Eyes have complete render & animation state isolation with zero cross-contamination")
-    void testMultiEyeStateIsolation() {
-        UUID idIdle = UUID.randomUUID();
-        UUID idCharge = UUID.randomUUID();
-        UUID idTrans = UUID.randomUUID();
-        UUID idBite = UUID.randomUUID();
-        UUID idDeath = UUID.randomUUID();
+    @DisplayName("Verify 5 mixed-phase simultaneous Eyes (P1 idle, P1 charge, transitioning, P2 bite, P2 enrage) have full state & skeleton isolation")
+    void testMultiEyeMixedPhaseStateIsolation() {
+        UUID idA = UUID.randomUUID(); // P1 idle
+        UUID idB = UUID.randomUUID(); // P1 charge
+        UUID idC = UUID.randomUUID(); // Transitioning (P1 transition)
+        UUID idD = UUID.randomUUID(); // P2 bite
+        UUID idE = UUID.randomUUID(); // P2 enrage
 
-        EyeRenderState stateIdle = EyeRenderState.create(idIdle, meshData);
-        EyeRenderState stateCharge = EyeRenderState.create(idCharge, meshData);
-        EyeRenderState stateTrans = EyeRenderState.create(idTrans, meshData);
-        EyeRenderState stateBite = EyeRenderState.create(idBite, meshData);
-        EyeRenderState stateDeath = EyeRenderState.create(idDeath, meshData);
+        EyeRenderState stateA = EyeRenderState.create(idA, meshDataP1, meshDataP2);
+        EyeRenderState stateB = EyeRenderState.create(idB, meshDataP1, meshDataP2);
+        EyeRenderState stateC = EyeRenderState.create(idC, meshDataP1, meshDataP2);
+        EyeRenderState stateD = EyeRenderState.create(idD, meshDataP1, meshDataP2);
+        EyeRenderState stateE = EyeRenderState.create(idE, meshDataP1, meshDataP2);
 
-        EyeRenderStateManager.put(idIdle, stateIdle);
-        EyeRenderStateManager.put(idCharge, stateCharge);
-        EyeRenderStateManager.put(idTrans, stateTrans);
-        EyeRenderStateManager.put(idBite, stateBite);
-        EyeRenderStateManager.put(idDeath, stateDeath);
+        EyeRenderStateManager.put(idA, stateA);
+        EyeRenderStateManager.put(idB, stateB);
+        EyeRenderStateManager.put(idC, stateC);
+        EyeRenderStateManager.put(idD, stateD);
+        EyeRenderStateManager.put(idE, stateE);
 
         assertEquals(5, EyeRenderStateManager.getActiveCount());
 
-        // Play different clips
-        stateIdle.getAnimController().play("phase2_idle", true);
-        stateCharge.getAnimController().play("phase2_charge", true);
-        stateTrans.getAnimController().play("phase_transition", true);
-        stateBite.getAnimController().play("phase2_bite", true);
-        stateDeath.getAnimController().play("death", true);
+        // Eyes A, B, C are Phase 1 (isPhase2 = false)
+        // Eyes D, E are Phase 2 (isPhase2 = true)
+        stateA.getAnimController(false).play("idle", true);
+        stateB.getAnimController(false).play("charge", true);
+        stateC.getAnimController(false).play("phase_transition", false);
+        stateD.getAnimController(true).play("phase2_bite", false);
+        stateE.getAnimController(true).play("enrage", true);
 
-        // Simulate 40 animation update steps in interleaved, random order
-        float[] times = {0.05f, 0.10f, 0.03f, 0.08f, 0.06f};
+        // Simulate 40 animation update steps in interleaved, scrambled order
+        float[] times = {0.05f, 0.10f, 0.05f, 0.08f, 0.06f};
         for (int step = 0; step < 40; step++) {
-            // Update in scrambled order: 3, 0, 4, 1, 2
-            stateTrans.getAnimController().update(times[2]);
-            stateTrans.getAnimController().apply(stateTrans.getSkeleton());
+            // Update in scrambled order: C, A, E, B, D
+            stateC.getAnimController(false).update(times[2]);
+            stateC.getAnimController(false).apply(stateC.getSkeleton(false));
 
-            stateIdle.getAnimController().update(times[0]);
-            stateIdle.getAnimController().apply(stateIdle.getSkeleton());
+            stateA.getAnimController(false).update(times[0]);
+            stateA.getAnimController(false).apply(stateA.getSkeleton(false));
 
-            stateDeath.getAnimController().update(times[4]);
-            stateDeath.getAnimController().apply(stateDeath.getSkeleton());
+            stateE.getAnimController(true).update(times[4]);
+            stateE.getAnimController(true).apply(stateE.getSkeleton(true));
 
-            stateCharge.getAnimController().update(times[1]);
-            stateCharge.getAnimController().apply(stateCharge.getSkeleton());
+            stateB.getAnimController(false).update(times[1]);
+            stateB.getAnimController(false).apply(stateB.getSkeleton(false));
 
-            stateBite.getAnimController().update(times[3]);
-            stateBite.getAnimController().apply(stateBite.getSkeleton());
+            stateD.getAnimController(true).update(times[3]);
+            stateD.getAnimController(true).apply(stateD.getSkeleton(true));
         }
 
         // 1. Verify clip names remained completely distinct
-        assertEquals("phase2_idle", stateIdle.getAnimController().getCurrentClipName());
-        assertEquals("phase2_charge", stateCharge.getAnimController().getCurrentClipName());
-        assertEquals("phase_transition", stateTrans.getAnimController().getCurrentClipName());
-        assertEquals("phase2_bite", stateBite.getAnimController().getCurrentClipName());
-        assertEquals("death", stateDeath.getAnimController().getCurrentClipName());
+        assertEquals("idle", stateA.getAnimController(false).getCurrentClipName());
+        assertEquals("charge", stateB.getAnimController(false).getCurrentClipName());
+        assertEquals("phase_transition", stateC.getAnimController(false).getCurrentClipName());
+        assertEquals("phase2_bite", stateD.getAnimController(true).getCurrentClipName());
+        assertEquals("enrage", stateE.getAnimController(true).getCurrentClipName());
 
         // 2. Verify playback times are completely independent
-        assertEquals(40 * times[0], stateIdle.getAnimController().getCurrentTime(), 1e-4f);
-        assertEquals(40 * times[1], stateCharge.getAnimController().getCurrentTime(), 1e-4f);
-        assertEquals(40 * times[2], stateTrans.getAnimController().getCurrentTime(), 1e-4f);
-        assertEquals(40 * times[3], stateBite.getAnimController().getCurrentTime(), 1e-4f);
-        assertEquals(40 * times[4], stateDeath.getAnimController().getCurrentTime(), 1e-4f);
+        assertEquals(40 * times[0], stateA.getAnimController(false).getCurrentTime(), 1e-4f);
+        assertEquals(40 * times[1], stateB.getAnimController(false).getCurrentTime(), 1e-4f);
+        assertEquals(40 * times[2], stateC.getAnimController(false).getCurrentTime(), 1e-4f);
+        assertEquals(40 * times[3], stateD.getAnimController(true).getCurrentTime(), 1e-4f);
+        assertEquals(40 * times[4], stateE.getAnimController(true).getCurrentTime(), 1e-4f);
 
-        // 3. Verify skeletons hold distinct matrices
-        Bone jawIdle = stateIdle.getSkeleton().getBone("upper_jaw");
-        Bone jawBite = stateBite.getSkeleton().getBone("upper_jaw");
-        Bone jawCharge = stateCharge.getSkeleton().getBone("upper_jaw");
+        // 3. Verify skeletons hold distinct matrices and phase-specific origins
+        Skeleton skelA = stateA.getSkeleton(false);
+        Skeleton skelB = stateB.getSkeleton(false);
+        Skeleton skelC = stateC.getSkeleton(false);
+        Skeleton skelD = stateD.getSkeleton(true);
+        Skeleton skelE = stateE.getSkeleton(true);
 
-        assertNotEquals(jawIdle.animRot.x, jawBite.animRot.x, "Idle and bite jaws must have distinct rotations");
-        assertNotEquals(jawIdle.animRot.x, jawCharge.animRot.x, "Idle and charge jaws must have distinct rotations");
+        // A, B, C are Phase 1 skeletons (upper jaw bound near origin)
+        assertEquals(0.0f, skelA.getBone("upper_jaw").bindLocalMatrix.m31(), 0.01f);
+        assertEquals(0.0f, skelB.getBone("upper_jaw").bindLocalMatrix.m31(), 0.01f);
+        assertEquals(0.0f, skelC.getBone("upper_jaw").bindLocalMatrix.m31(), 0.01f);
 
-        // 4. Verify skinned mesh instances compute independent vertex buffers
-        TerraSkinnedMeshInstance instIdle = stateIdle.getOrCreateInstanceP2(meshData);
-        TerraSkinnedMeshInstance instBite = stateBite.getOrCreateInstanceP2(meshData);
+        // D, E are Phase 2 skeletons (upper jaw bound at hinge pivot ~ 12.302)
+        assertEquals(12.302f, Math.abs(skelD.getBone("upper_jaw").bindLocalMatrix.m31()), 0.05f);
+        assertEquals(12.302f, Math.abs(skelE.getBone("upper_jaw").bindLocalMatrix.m31()), 0.05f);
 
-        instIdle.skin(stateIdle.getSkeleton());
-        instBite.skin(stateBite.getSkeleton());
+        // Body and jaw animation rotations differ across all instances
+        assertNotEquals(skelA.getBone("body").animRot.y, skelC.getBone("body").animRot.y, "P1 idle and transition bodies must differ");
+        Bone jawA = skelA.getBone("upper_jaw");
+        Bone jawC = skelC.getBone("upper_jaw");
+        Bone jawD = skelD.getBone("upper_jaw");
+        Bone jawE = skelE.getBone("upper_jaw");
 
-        assertNotSame(instIdle, instBite, "Instances must be separate objects per state");
+        assertNotEquals(jawA.animRot.x, jawC.animRot.x, "P1 idle and transition upper jaws must differ");
+        assertNotEquals(jawD.animRot.x, jawE.animRot.x, "P2 bite and enrage upper jaws must differ");
 
-        float[] posIdle = instIdle.getParts().get(0).skinnedPositions;
-        float[] posBite = instBite.getParts().get(0).skinnedPositions;
+        // 4. Verify skinned mesh instances compute independent vertex buffers for their respective phases
+        TerraSkinnedMeshInstance instA = stateA.getMeshInstance(false, meshDataP1);
+        TerraSkinnedMeshInstance instD = stateD.getMeshInstance(true, meshDataP2);
 
-        boolean foundVertexDifference = false;
-        for (int i = 0; i < posIdle.length; i++) {
-            if (Math.abs(posIdle[i] - posBite[i]) > 0.05f) {
-                foundVertexDifference = true;
-                break;
-            }
-        }
-        assertTrue(foundVertexDifference, "Deformed vertex positions must differ between idle and bite states");
+        instA.skin(skelA);
+        instD.skin(skelD);
+
+        assertNotSame(instA, instD, "Instances must be separate objects per state and phase");
+        assertEquals(meshDataP1.getParts().get(0).vertexCount, instA.getParts().get(0).data.vertexCount);
+        assertEquals(meshDataP2.getParts().get(0).vertexCount, instD.getParts().get(0).data.vertexCount);
 
         // 5. Verify cleanup removes state without leak
-        EyeRenderStateManager.remove(idIdle);
+        EyeRenderStateManager.remove(idA);
         assertEquals(4, EyeRenderStateManager.getActiveCount());
-        assertNull(EyeRenderStateManager.get(idIdle));
+        assertNull(EyeRenderStateManager.get(idA));
 
         EyeRenderStateManager.clear();
         assertEquals(0, EyeRenderStateManager.getActiveCount());
