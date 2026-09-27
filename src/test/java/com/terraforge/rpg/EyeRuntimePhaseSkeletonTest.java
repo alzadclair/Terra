@@ -81,7 +81,7 @@ public class EyeRuntimePhaseSkeletonTest {
             }
         }
 
-        assertTrue(totalVerts >= 4500, "Phase 1 must have at least 4500 vertices");
+        assertTrue(totalVerts >= 3000, "Phase 1 must have at least 3000 vertices");
         System.out.printf("Eye Phase 1 Runtime Rest Pose: %d vertices, maxPosErr = %.2e, maxNormErr = %.2e%n",
                 totalVerts, maxPosErr, maxNormErr);
     }
@@ -123,7 +123,7 @@ public class EyeRuntimePhaseSkeletonTest {
             }
         }
 
-        assertTrue(totalVerts >= 6000, "Phase 2 must have at least 6000 vertices");
+        assertTrue(totalVerts >= 4800, "Phase 2 must have at least 4800 vertices");
         System.out.printf("Eye Phase 2 Runtime Rest Pose: %d vertices, maxPosErr = %.2e, maxNormErr = %.2e%n",
                 totalVerts, maxPosErr, maxNormErr);
     }

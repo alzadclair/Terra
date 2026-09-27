@@ -96,20 +96,21 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
             this.currentRenderState = state;
         }
 
-        state.setYaw((float) Math.toRadians(netHeadYaw));
+        state.setYaw(0.0f);
         state.setPitch((float) Math.toRadians(headPitch));
 
         boolean isPhase2 = entity.isRenderPhase2();
 
-        // Dynamic roll banking during high-speed charge dashes
+        // Dynamic roll banking during high-speed charge dashes with smooth lerping
         double velX = entity.getDeltaMovement().x;
         double velZ = entity.getDeltaMovement().z;
         double horizontalSpeed = Math.sqrt(velX * velX + velZ * velZ);
 
-        if (horizontalSpeed > 0.4) {
-            state.setRoll((float) Math.sin(ageInTicks * 0.5f) * (isPhase2 ? 0.25f : 0.12f));
+        if (horizontalSpeed > 0.3) {
+            float targetRoll = (float) Math.sin(ageInTicks * 0.4f) * (isPhase2 ? 0.22f : 0.12f);
+            state.setRoll(net.minecraft.util.Mth.rotLerp(0.15f, state.getRoll(), targetRoll));
         } else {
-            state.setRoll(0.0f);
+            state.setRoll(net.minecraft.util.Mth.rotLerp(0.20f, state.getRoll(), 0.0f));
         }
 
         // Map synced animation state to clip
@@ -135,8 +136,12 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
 
         AnimationController animController = state.getAnimController(isPhase2);
         if (!animController.getCurrentClipName().equals(targetClip)) {
-            float blendDur = (animState == EyeOfCthulhuEntity.EyeAnimState.HURT || animState == EyeOfCthulhuEntity.EyeAnimState.PHASE2_BITE)
-                    ? 0.10f : 0.20f;
+            float blendDur = switch (animState) {
+                case HURT, PHASE2_BITE -> 0.08f;
+                case CHARGE, PHASE2_CHARGE -> 0.12f;
+                case CHARGE_PREPARE, PHASE2_CHARGE_PREPARE -> 0.15f;
+                default -> 0.25f;
+            };
             animController.crossFade(targetClip, blendDur);
         }
 
@@ -158,16 +163,13 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         poseStack.translate(0.0, -0.1, 0.0);
 
         EyeRenderState state = this.currentRenderState;
-        float yaw = state != null ? state.getYaw() : 0.0f;
         float pitch = state != null ? state.getPitch() : 0.0f;
         float roll = state != null ? state.getRoll() : 0.0f;
 
-        // Apply entity orientation rotations (yaw, pitch, bank roll)
-        if (yaw != 0.0f) {
-            poseStack.mulPose(new Quaternionf().rotationY(yaw));
-        }
+        // Apply entity pitch (negated for OpenGL +Y up world convention) and banking roll.
+        // Yaw is already authoritatively applied by EyeOfCthulhuRenderer setupRotations.
         if (pitch != 0.0f) {
-            poseStack.mulPose(new Quaternionf().rotationX(pitch));
+            poseStack.mulPose(new Quaternionf().rotationX(-pitch));
         }
         if (roll != 0.0f) {
             poseStack.mulPose(new Quaternionf().rotationZ(roll));

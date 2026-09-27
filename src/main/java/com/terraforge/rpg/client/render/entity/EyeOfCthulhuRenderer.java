@@ -34,6 +34,12 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
     }
 
     @Override
+    protected void setupRotations(EyeOfCthulhuEntity entity, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTicks, float scale) {
+        float yaw = net.minecraft.util.Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot());
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - yaw));
+    }
+
+    @Override
     protected void scale(EyeOfCthulhuEntity entity, PoseStack poseStack, float partialTick) {
         // Authoritative model scale and orientation are centralized in EyeOfCthulhuModel
     }

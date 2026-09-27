@@ -13,7 +13,90 @@ import json
 import struct
 import numpy as np
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, deque
+
+def filter_stalk_components(part_dict):
+    pos = np.array(part_dict['positions']).reshape((-1, 3))
+    norm = np.array(part_dict['normals']).reshape((-1, 3))
+    uv = np.array(part_dict['uvs']).reshape((-1, 2))
+    b_idx = np.array(part_dict['boneIndices']).reshape((-1, 4))
+    b_w = np.array(part_dict['boneWeights']).reshape((-1, 4))
+    indices = part_dict['indices']
+
+    tendril_indices = {PALETTE_MAP[f"tendril_0{i}"] for i in range(1, 7)}
+
+    adj = defaultdict(set)
+    for i in range(0, len(indices), 3):
+        i0, i1, i2 = indices[i], indices[i+1], indices[i+2]
+        adj[i0].add(i1); adj[i0].add(i2)
+        adj[i1].add(i0); adj[i1].add(i2)
+        adj[i2].add(i0); adj[i2].add(i1)
+
+    visited = set()
+    components = []
+    for v in range(len(pos)):
+        if v not in visited:
+            comp = []
+            q = deque([v])
+            visited.add(v)
+            while q:
+                curr = q.popleft()
+                comp.append(curr)
+                for neighbor in adj[curr]:
+                    if neighbor not in visited:
+                        visited.add(neighbor)
+                        q.append(neighbor)
+            components.append(comp)
+
+    kept_verts_set = set()
+    for c in components:
+        c_b_idx = b_idx[c]
+        c_b_w = b_w[c]
+        c_pos = pos[c]
+        has_tendril = False
+        for v_b, v_w in zip(c_b_idx, c_b_w):
+            for bi, bw in zip(v_b, v_w):
+                if bi in tendril_indices and bw > 0.05:
+                    has_tendril = True
+                    break
+            if has_tendril:
+                break
+        if has_tendril or c_pos[:, 1].min() > 180.0:
+            kept_verts_set.update(c)
+
+    old_to_new = {}
+    new_pos = []
+    new_norm = []
+    new_uv = []
+    new_b_idx = []
+    new_b_w = []
+
+    for old_i in range(len(pos)):
+        if old_i in kept_verts_set:
+            old_to_new[old_i] = len(new_pos)
+            new_pos.append(pos[old_i])
+            new_norm.append(norm[old_i])
+            new_uv.append(uv[old_i])
+            new_b_idx.append(b_idx[old_i])
+            new_b_w.append(b_w[old_i])
+
+    new_indices = []
+    for i in range(0, len(indices), 3):
+        i0, i1, i2 = indices[i], indices[i+1], indices[i+2]
+        if i0 in old_to_new and i1 in old_to_new and i2 in old_to_new:
+            new_indices.extend([old_to_new[i0], old_to_new[i1], old_to_new[i2]])
+
+    return {
+        "name": part_dict["name"],
+        "vertexCount": len(new_pos),
+        "positions": [round(float(x), 4) for v in new_pos for x in v],
+        "normals": [round(float(x), 4) for v in new_norm for x in v],
+        "uvs": [round(float(x), 4) for v in new_uv for x in v],
+        "boneIndices": [int(x) for v in new_b_idx for x in v],
+        "boneWeights": [round(float(x), 4) for v in new_b_w for x in v],
+        "indices": new_indices
+    }
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 TARGET_DIR = PROJECT_ROOT / "src/main/resources/assets/terraforge_rpg/models/entity/boss"
@@ -242,7 +325,7 @@ def extract_p2():
         for idx_entry in ind_list:
             flat_ind.append(idx_entry[0] if isinstance(idx_entry, tuple) else idx_entry)
 
-        parts_json.append({
+        part_dict = {
             "name": part_name,
             "vertexCount": len(pos_list),
             "positions": flat_pos,
@@ -251,7 +334,10 @@ def extract_p2():
             "boneIndices": flat_b_idx,
             "boneWeights": flat_b_w,
             "indices": flat_ind
-        })
+        }
+        if part_name == "stalk":
+            part_dict = filter_stalk_components(part_dict)
+        parts_json.append(part_dict)
 
     out_json = {
         "name": "eye_of_cthulhu_p2",
@@ -409,7 +495,7 @@ def extract_p1():
         for idx_entry in ind_list:
             flat_ind.append(idx_entry[0] if isinstance(idx_entry, tuple) else idx_entry)
 
-        parts_json.append({
+        part_dict = {
             "name": part_name,
             "vertexCount": len(pos_list),
             "positions": flat_pos,
@@ -418,7 +504,10 @@ def extract_p1():
             "boneIndices": flat_b_idx,
             "boneWeights": flat_b_w,
             "indices": flat_ind
-        })
+        }
+        if part_name == "stalk":
+            part_dict = filter_stalk_components(part_dict)
+        parts_json.append(part_dict)
 
     out_json = {
         "name": "eye_of_cthulhu_p1",

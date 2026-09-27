@@ -13,8 +13,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -193,6 +193,44 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
     protected void checkFallDamage(double y, boolean onGround, net.minecraft.world.level.block.state.BlockState state, BlockPos pos) {
     }
 
+    public void faceDirection(double dx, double dy, double dz, float maxYawStep, float maxPitchStep) {
+        double hDist = Math.sqrt(dx * dx + dz * dz);
+        if (hDist < 1.0e-5 && Math.abs(dy) < 1.0e-5) return;
+        float targetYaw = (float)(Mth.atan2(dz, dx) * (180.0 / Math.PI)) - 90.0F;
+        float targetPitch = (float)(-(Mth.atan2(dy, hDist) * (180.0 / Math.PI)));
+
+        if (maxYawStep >= 180.0f) {
+            this.setYRot(targetYaw);
+        } else {
+            this.setYRot(Mth.rotLerp(maxYawStep / 180.0f, this.getYRot(), targetYaw));
+        }
+        if (maxPitchStep >= 180.0f) {
+            this.setXRot(targetPitch);
+        } else {
+            this.setXRot(Mth.rotLerp(maxPitchStep / 180.0f, this.getXRot(), targetPitch));
+        }
+
+        this.yBodyRot = this.getYRot();
+        this.yHeadRot = this.getYRot();
+        this.yBodyRotO = this.yRotO;
+        this.yHeadRotO = this.yRotO;
+    }
+
+    @Override
+    protected net.minecraft.sounds.SoundEvent getAmbientSound() {
+        return ModSoundEvents.EYE_AMBIENT.get();
+    }
+
+    @Override
+    protected net.minecraft.sounds.SoundEvent getHurtSound(DamageSource damageSource) {
+        return ModSoundEvents.EYE_HURT.get();
+    }
+
+    @Override
+    protected net.minecraft.sounds.SoundEvent getDeathSound() {
+        return ModSoundEvents.EYE_DEATH.get();
+    }
+
     @Override
     protected void onPhaseTransition(BossPhase newPhase) {
         super.onPhaseTransition(newPhase);
@@ -203,8 +241,8 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
             if (this.level() != null) {
                 this.level().playSound(
                         null, this.getX(), this.getY(), this.getZ(),
-                        ModSoundEvents.BOSS_ROAR.get(), SoundSource.HOSTILE,
-                        3.0f, 0.8f
+                        ModSoundEvents.EYE_PHASE2_ROAR.get(), SoundSource.HOSTILE,
+                        3.0f, 1.0f
                 );
             }
         }
@@ -239,8 +277,8 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     );
                     serverLevel.playSound(
                             null, this.getX(), this.getY(), this.getZ(),
-                            SoundEvents.SLIME_BLOCK_BREAK, SoundSource.HOSTILE,
-                            1.5f, 0.7f
+                            ModSoundEvents.EYE_TRANSITION.get(), SoundSource.HOSTILE,
+                            1.8f, 0.9f
                     );
                 }
 
@@ -258,6 +296,10 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
         if (this.level() == null || !this.level().isClientSide()) {
             normalizeVisualPhase();
         }
+
+        // Authoritative body/head rotation synchronization
+        this.yBodyRot = this.getYRot();
+        this.yHeadRot = this.getYRot();
 
         // Daytime departure (Terraria rule: despawns if night ends)
         long dayTime = this.level().getDayTime() % 24000;
@@ -355,19 +397,24 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
             LivingEntity target = eye.getTarget();
             if (target == null) return;
 
-            eye.getLookControl().setLookAt(target, 40.0f, 40.0f);
             boolean isPhase2 = eye.getCurrentPhase().phaseNumber() >= 2;
             attackTimer--;
 
             if (isCharging) {
-                // High speed dash
+                // High speed dash directly along chargeVector
                 eye.setDeltaMovement(chargeVector);
+                // Authoritative forward lock along movement vector
+                eye.faceDirection(chargeVector.x, chargeVector.y, chargeVector.z, 180.0f, 180.0f);
 
                 double distSqr = eye.distanceToSqr(target);
                 if (distSqr < 4.0) {
                     eye.doHurtTarget(target);
                     if (isPhase2) {
                         eye.setAnimState(EyeAnimState.PHASE2_BITE);
+                        if (eye.level() != null) {
+                            eye.level().playSound(null, eye.getX(), eye.getY(), eye.getZ(),
+                                    ModSoundEvents.EYE_BITE.get(), SoundSource.HOSTILE, 1.8f, 1.0f);
+                        }
                     }
                 } else {
                     eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE : EyeAnimState.CHARGE);
@@ -396,11 +443,22 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     eye.setDeltaMovement(toHover.normalize().scale(isPhase2 ? 0.40 : 0.25));
                 }
 
+                Vec3 toTarget = target.getEyePosition().subtract(eye.position());
+
                 // Prepare charge animation cue 12 ticks before launch
                 if (attackTimer <= 12 && attackTimer > 0) {
                     eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE_PREPARE : EyeAnimState.CHARGE_PREPARE);
+                    // Smooth tracking towards target during windup
+                    eye.faceDirection(toTarget.x, toTarget.y, toTarget.z, 45.0f, 45.0f);
+
+                    if (attackTimer == 12 && eye.level() != null) {
+                        eye.level().playSound(null, eye.getX(), eye.getY(), eye.getZ(),
+                                ModSoundEvents.EYE_PREPARE.get(), SoundSource.HOSTILE, 1.6f, isPhase2 ? 1.2f : 1.0f);
+                    }
                 } else if (attackTimer > 12) {
                     eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_IDLE : EyeAnimState.HOVER);
+                    // Smooth ocular tracking towards player
+                    eye.faceDirection(toTarget.x, toTarget.y, toTarget.z, 20.0f, 20.0f);
                 }
 
                 // Phase 1: Spawn Servants of Cthulhu periodically
@@ -412,7 +470,7 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     serverLevel.addFreshEntity(servant);
 
                     serverLevel.playSound(null, eye.getX(), eye.getY(), eye.getZ(),
-                            SoundEvents.SLIME_SQUISH, SoundSource.HOSTILE, 1.0f, 1.4f);
+                            ModSoundEvents.EYE_SERVANT_SUMMON.get(), SoundSource.HOSTILE, 1.2f, 1.2f);
                 }
 
                 // Launch charge dash
@@ -422,11 +480,12 @@ public class EyeOfCthulhuEntity extends TerraBaseBoss {
                     chargeVector = target.getEyePosition().subtract(eye.position()).normalize().scale(chargeSpeed);
                     attackTimer = isPhase2 ? 20 : 30; // Max charge duration
                     eye.setAnimState(isPhase2 ? EyeAnimState.PHASE2_CHARGE : EyeAnimState.CHARGE);
+                    eye.faceDirection(chargeVector.x, chargeVector.y, chargeVector.z, 180.0f, 180.0f);
 
                     if (eye.level() != null) {
                         eye.level().playSound(null, eye.getX(), eye.getY(), eye.getZ(),
-                                isPhase2 ? SoundEvents.ENDER_DRAGON_GROWL : SoundEvents.PHANTOM_BITE,
-                                SoundSource.HOSTILE, 1.5f, isPhase2 ? 1.2f : 0.8f);
+                                isPhase2 ? ModSoundEvents.EYE_PHASE2_ROAR.get() : ModSoundEvents.EYE_CHARGE.get(),
+                                SoundSource.HOSTILE, 2.0f, isPhase2 ? 1.1f : 0.9f);
                     }
                 }
             }

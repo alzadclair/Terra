@@ -20,6 +20,26 @@ public final class ModSoundEvents {
             register("ability.activate");
     public static final DeferredHolder<SoundEvent, SoundEvent> BOSS_ROAR =
             register("boss.roar");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_AMBIENT =
+            register("eye_of_cthulhu.ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_ROAR =
+            register("eye_of_cthulhu.roar");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_PREPARE =
+            register("eye_of_cthulhu.prepare");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_CHARGE =
+            register("eye_of_cthulhu.charge");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_BITE =
+            register("eye_of_cthulhu.bite");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_HURT =
+            register("eye_of_cthulhu.hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_TRANSITION =
+            register("eye_of_cthulhu.transition");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_PHASE2_ROAR =
+            register("eye_of_cthulhu.phase2_roar");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_DEATH =
+            register("eye_of_cthulhu.death");
+    public static final DeferredHolder<SoundEvent, SoundEvent> EYE_SERVANT_SUMMON =
+            register("eye_of_cthulhu.servant_summon");
     public static final DeferredHolder<SoundEvent, SoundEvent> ROAR_MECHANICAL =
             register("boss.roar_mechanical");
     public static final DeferredHolder<SoundEvent, SoundEvent> DEATHRAY =

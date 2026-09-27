@@ -93,7 +93,7 @@ public class EyeTextureMappingSanityTest {
             }
         }
 
-        assertEquals(4644, totalVerts, "Phase 1 must maintain authentic 4,644 vertex count");
+        assertEquals(3216, totalVerts, "Phase 1 must maintain clean organic eye + tendril vertex count (3,216)");
     }
 
     @Test
@@ -149,6 +149,6 @@ public class EyeTextureMappingSanityTest {
             }
         }
 
-        assertEquals(6254, totalVerts, "Phase 2 must maintain authentic 6,254 vertex count");
+        assertEquals(4914, totalVerts, "Phase 2 must maintain clean organic eye + maw/teeth + tendril vertex count (4,914)");
     }
 }

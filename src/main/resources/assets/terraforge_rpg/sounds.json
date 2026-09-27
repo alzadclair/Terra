@@ -14,8 +14,67 @@
   "boss.roar": {
     "subtitle": "subtitles.terraforge_rpg.boss.roar",
     "sounds": [
-      "minecraft:entity.ender_dragon.growl",
-      "minecraft:entity.warden.roar"
+      "terraforge_rpg:boss/eye_of_cthulhu/roar"
+    ]
+  },
+  "eye_of_cthulhu.ambient": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.ambient",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/ambient"
+    ]
+  },
+  "eye_of_cthulhu.roar": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.roar",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/roar"
+    ]
+  },
+  "eye_of_cthulhu.prepare": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.prepare",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/prepare"
+    ]
+  },
+  "eye_of_cthulhu.charge": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.charge",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/charge"
+    ]
+  },
+  "eye_of_cthulhu.bite": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.bite",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/bite"
+    ]
+  },
+  "eye_of_cthulhu.hurt": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.hurt",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/hurt"
+    ]
+  },
+  "eye_of_cthulhu.transition": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.transition",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/transition"
+    ]
+  },
+  "eye_of_cthulhu.phase2_roar": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.phase2_roar",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/phase2_roar"
+    ]
+  },
+  "eye_of_cthulhu.death": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.death",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/death"
+    ]
+  },
+  "eye_of_cthulhu.servant_summon": {
+    "subtitle": "subtitles.terraforge_rpg.eye_of_cthulhu.servant_summon",
+    "sounds": [
+      "terraforge_rpg:boss/eye_of_cthulhu/servant_summon"
     ]
   },
   "boss.roar_mechanical": {

@@ -67,7 +67,7 @@ public class SkinWeightsValidationTest {
                     }
                 }
 
-                assertTrue(totalVertsChecked >= 4000, "Expected >= 4000 vertices in " + skinFilename + ", checked: " + totalVertsChecked);
+                assertTrue(totalVertsChecked >= 3000, "Expected >= 3000 vertices in " + skinFilename + ", checked: " + totalVertsChecked);
             }
         }
     }
