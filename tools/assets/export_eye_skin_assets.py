@@ -201,10 +201,10 @@ def extract_p2():
                 v_atlas = v
             elif tex_type == "stalk":
                 u_atlas = 0.5 + u * 0.5
-                v_atlas = v
+                v_atlas = v * 0.5
             elif tex_type == "teeth":
                 u_atlas = 0.5 + u * 0.5
-                v_atlas = v * 0.5
+                v_atlas = 0.5 + v * 0.5
             else:
                 u_atlas = u
                 v_atlas = v
@@ -330,7 +330,7 @@ def extract_p1():
     # Meshes: 1 (stalk), 3 (glass), 7 (body), 8 (pupil), 9 (iris)
     mesh_configs = [
         (1, "stalk", "stalk"),
-        (3, "glass", "body"),
+        (3, "glass", "glass"),
         (7, "body", "body"),
         (8, "pupil", "pupil"),
         (9, "iris", "iris")
@@ -368,7 +368,10 @@ def extract_p1():
             u, v = uv[0], uv[1]
             if tex_type == "stalk":
                 u_atlas = 0.5 + u * 0.5
-                v_atlas = v
+                v_atlas = v * 0.5
+            elif tex_type == "glass":
+                u_atlas = 0.5 + u * 0.5
+                v_atlas = 0.5 + v * 0.5
             else:
                 u_atlas = u * 0.5
                 v_atlas = v
