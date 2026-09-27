@@ -197,14 +197,55 @@ public class TerraSkinnedMeshInstance {
         }
     }
 
+    private static volatile String debugSubmeshFilter = null;
+
+    public static void setDebugSubmeshFilter(String filter) {
+        debugSubmeshFilter = (filter == null || filter.trim().isEmpty() || filter.equalsIgnoreCase("ALL")) ? null : filter.trim();
+    }
+
+    public static String getDebugSubmeshFilter() {
+        return debugSubmeshFilter != null ? debugSubmeshFilter : "ALL";
+    }
+
+    public static String getEffectiveDebugSubmeshFilter() {
+        if (debugSubmeshFilter != null) {
+            return debugSubmeshFilter;
+        }
+        String prop = System.getProperty("terraforge.debug.eye.submesh");
+        return (prop != null && !prop.trim().isEmpty() && !prop.equalsIgnoreCase("ALL")) ? prop.trim() : null;
+    }
+
+    public boolean hasPartsWithMode(TerraSkinnedMeshData.RenderMode mode) {
+        if (mode == null) return true;
+        for (PartInstance part : parts) {
+            if (part.data.renderMode == mode) return true;
+        }
+        return false;
+    }
+
     public void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
                        float r, float g, float b, float a) {
+        render(poseStack, consumer, packedLight, packedOverlay, r, g, b, a, null);
+    }
+
+    public void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
+                       float r, float g, float b, float a, TerraSkinnedMeshData.RenderMode targetMode) {
+        String filter = getEffectiveDebugSubmeshFilter();
+        boolean hasFilter = (filter != null);
+
         for (PartInstance part : parts) {
+            if (hasFilter) {
+                if (!part.data.name.equalsIgnoreCase(filter)) {
+                    continue;
+                }
+            } else if (targetMode != null && part.data.renderMode != targetMode) {
+                continue;
+            }
             part.render(poseStack, consumer, packedLight, packedOverlay, r, g, b, a);
         }
     }
 
     public void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay) {
-        render(poseStack, consumer, packedLight, packedOverlay, 1.0f, 1.0f, 1.0f, 1.0f);
+        render(poseStack, consumer, packedLight, packedOverlay, 1.0f, 1.0f, 1.0f, 1.0f, null);
     }
 }

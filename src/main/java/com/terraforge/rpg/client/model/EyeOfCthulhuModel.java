@@ -18,6 +18,9 @@ import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import com.terraforge.rpg.client.render.entity.EyeOfCthulhuRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -48,11 +51,20 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
     private final ModelPart root;
     private EyeRenderState currentRenderState;
     private EyeOfCthulhuEntity currentEntity;
+    private MultiBufferSource currentBufferSource;
     private java.util.UUID lastLoggedEntityUuid = null;
     private Boolean lastLoggedPhase2 = null;
 
     public EyeOfCthulhuModel(ModelPart root) {
         this.root = root;
+    }
+
+    public static void setDebugSubmeshFilter(String filter) {
+        TerraSkinnedMeshInstance.setDebugSubmeshFilter(filter);
+    }
+
+    public static String getDebugSubmeshFilter() {
+        return TerraSkinnedMeshInstance.getDebugSubmeshFilter();
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -67,6 +79,10 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
 
     public void setRenderState(EyeRenderState renderState) {
         this.currentRenderState = renderState;
+    }
+
+    public void setBufferSource(MultiBufferSource bufferSource) {
+        this.currentBufferSource = bufferSource;
     }
 
     public Skeleton getSkeleton() {
@@ -205,7 +221,20 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
                 logDebugIfNeeded(currentEntity, isPhase2, skeleton, instance, meshData);
             }
 
-            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a);
+            // 1. Render OPAQUE and CUTOUT parts through the primary mob buffer (entityCutoutNoCull)
+            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.OPAQUE);
+            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.CUTOUT);
+
+            // 2. Render TRANSLUCENT parts (e.g. glass cornea) through dedicated translucent render pass
+            if (instance.hasPartsWithMode(TerraSkinnedMeshData.RenderMode.TRANSLUCENT)) {
+                ResourceLocation texLoc = isPhase2 ? EyeOfCthulhuRenderer.TEXTURE_P2 : EyeOfCthulhuRenderer.TEXTURE_P1;
+                VertexConsumer transBuffer = (this.currentBufferSource != null)
+                        ? this.currentBufferSource.getBuffer(RenderType.entityTranslucent(texLoc))
+                        : null;
+                if (transBuffer != null) {
+                    instance.render(poseStack, transBuffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.TRANSLUCENT);
+                }
+            }
         } catch (Exception e) {
             TerraLogger.error("CLIENT", "Failed to render skinned Eye of Cthulhu mesh, falling back to static OBJ mesh", e);
             // Fallback to static OBJ mesh if skin loading encounters an issue
@@ -215,6 +244,7 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
         } finally {
             this.currentRenderState = null;
             this.currentEntity = null;
+            this.currentBufferSource = null;
         }
 
         poseStack.popPose();

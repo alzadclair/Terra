@@ -17,9 +17,9 @@ import net.minecraft.resources.ResourceLocation;
  * Obtains per-entity EyeRenderState from EyeRenderStateManager and passes it to the stateless model.
  */
 public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfCthulhuModel> {
-    private static final ResourceLocation TEXTURE_P1 =
+    public static final ResourceLocation TEXTURE_P1 =
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "textures/entity/boss/eye_of_cthulhu_p1.png");
-    private static final ResourceLocation TEXTURE_P2 =
+    public static final ResourceLocation TEXTURE_P2 =
             ResourceLocation.fromNamespaceAndPath(TerraForgeRPG.MOD_ID, "textures/entity/boss/eye_of_cthulhu_p2.png");
 
     public EyeOfCthulhuRenderer(EntityRendererProvider.Context context) {
@@ -30,7 +30,9 @@ public class EyeOfCthulhuRenderer extends MobRenderer<EyeOfCthulhuEntity, EyeOfC
     public void render(EyeOfCthulhuEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         EyeRenderState state = EyeRenderStateManager.getOrCreate(entity);
         this.model.setRenderState(state);
+        this.model.setBufferSource(buffer);
         super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
+        this.model.setBufferSource(null);
     }
 
     @Override

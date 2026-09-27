@@ -88,6 +88,7 @@ def filter_stalk_components(part_dict):
 
     return {
         "name": part_dict["name"],
+        "renderMode": part_dict.get("renderMode", "OPAQUE"),
         "vertexCount": len(new_pos),
         "positions": [round(float(x), 4) for v in new_pos for x in v],
         "normals": [round(float(x), 4) for v in new_norm for x in v],
@@ -327,6 +328,7 @@ def extract_p2():
 
         part_dict = {
             "name": part_name,
+            "renderMode": "OPAQUE",
             "vertexCount": len(pos_list),
             "positions": flat_pos,
             "normals": flat_norm,
@@ -497,6 +499,7 @@ def extract_p1():
 
         part_dict = {
             "name": part_name,
+            "renderMode": "TRANSLUCENT" if part_name == "glass" else "OPAQUE",
             "vertexCount": len(pos_list),
             "positions": flat_pos,
             "normals": flat_norm,

@@ -155,8 +155,12 @@ public final class TerraSkinnedMeshLoader {
                 float[] boneWeights = toFloatArray(pObj.getAsJsonArray("boneWeights"));
                 int[] indices = toIntArray(pObj.getAsJsonArray("indices"));
 
+                TerraSkinnedMeshData.RenderMode renderMode = pObj.has("renderMode")
+                        ? TerraSkinnedMeshData.RenderMode.fromString(pObj.get("renderMode").getAsString())
+                        : ("glass".equalsIgnoreCase(partName) ? TerraSkinnedMeshData.RenderMode.TRANSLUCENT : TerraSkinnedMeshData.RenderMode.OPAQUE);
+
                 parts.add(new TerraSkinnedMeshData.PartData(
-                        partName, vertexCount, positions, normals, uvs, boneIndices, boneWeights, indices
+                        partName, vertexCount, positions, normals, uvs, boneIndices, boneWeights, indices, renderMode
                 ));
             }
         }

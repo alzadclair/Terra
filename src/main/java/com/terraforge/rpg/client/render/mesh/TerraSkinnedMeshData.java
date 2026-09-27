@@ -31,6 +31,21 @@ public class TerraSkinnedMeshData {
         }
     }
 
+    public enum RenderMode {
+        OPAQUE,
+        CUTOUT,
+        TRANSLUCENT;
+
+        public static RenderMode fromString(String str) {
+            if (str == null) return OPAQUE;
+            try {
+                return RenderMode.valueOf(str.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return OPAQUE;
+            }
+        }
+    }
+
     public static class PartData {
         public final String name;
         public final int vertexCount;
@@ -40,9 +55,16 @@ public class TerraSkinnedMeshData {
         public final int[] boneIndices;
         public final float[] boneWeights;
         public final int[] indices;
+        public final RenderMode renderMode;
 
         public PartData(String name, int vertexCount, float[] bindPositions, float[] bindNormals,
                         float[] uvs, int[] boneIndices, float[] boneWeights, int[] indices) {
+            this(name, vertexCount, bindPositions, bindNormals, uvs, boneIndices, boneWeights, indices,
+                 "glass".equalsIgnoreCase(name) ? RenderMode.TRANSLUCENT : RenderMode.OPAQUE);
+        }
+
+        public PartData(String name, int vertexCount, float[] bindPositions, float[] bindNormals,
+                        float[] uvs, int[] boneIndices, float[] boneWeights, int[] indices, RenderMode renderMode) {
             this.name = name;
             this.vertexCount = vertexCount;
             this.bindPositions = bindPositions;
@@ -51,6 +73,7 @@ public class TerraSkinnedMeshData {
             this.boneIndices = boneIndices;
             this.boneWeights = boneWeights;
             this.indices = indices;
+            this.renderMode = (renderMode != null) ? renderMode : ("glass".equalsIgnoreCase(name) ? RenderMode.TRANSLUCENT : RenderMode.OPAQUE);
         }
     }
 
