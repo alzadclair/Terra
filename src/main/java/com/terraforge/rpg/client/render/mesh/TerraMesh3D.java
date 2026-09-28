@@ -39,30 +39,43 @@ public class TerraMesh3D {
             int blue = (int) (b * 255.0f);
             int alpha = (int) (a * 255.0f);
 
-            for (int i = 0; i < indices.length; i++) {
-                int idx = indices[i];
-                int pIdx = idx * 3;
-                int uIdx = idx * 2;
-                int nIdx = idx * 3;
+            var poseEntry = poseStack.last();
+            for (int i = 0; i < indices.length; i += 3) {
+                int idx0 = indices[i];
+                int idx1 = indices[i + 1];
+                int idx2 = indices[i + 2];
 
-                float x = positions[pIdx];
-                float y = positions[pIdx + 1];
-                float z = positions[pIdx + 2];
-
-                float u = uvs[uIdx];
-                float v = uvs[uIdx + 1];
-
-                float nx = (normals.length > nIdx + 2) ? normals[nIdx] : 0.0f;
-                float ny = (normals.length > nIdx + 2) ? normals[nIdx + 1] : 1.0f;
-                float nz = (normals.length > nIdx + 2) ? normals[nIdx + 2] : 0.0f;
-
-                consumer.addVertex(pose, x, y, z)
-                        .setColor(red, green, blue, alpha)
-                        .setUv(u, v)
-                        .setOverlay(packedOverlay)
-                        .setLight(packedLight)
-                        .setNormal(poseStack.last(), nx, ny, nz);
+                emitVertex(consumer, pose, poseEntry, idx0, uvs, normals, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx1, uvs, normals, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx2, uvs, normals, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx2, uvs, normals, red, green, blue, alpha, packedLight, packedOverlay);
             }
+        }
+
+        private void emitVertex(VertexConsumer consumer, Matrix4f pose, com.mojang.blaze3d.vertex.PoseStack.Pose poseEntry,
+                                int idx, float[] uvs, float[] normals, int red, int green, int blue, int alpha,
+                                int packedLight, int packedOverlay) {
+            int pIdx = idx * 3;
+            int uIdx = idx * 2;
+            int nIdx = idx * 3;
+
+            float x = positions[pIdx];
+            float y = positions[pIdx + 1];
+            float z = positions[pIdx + 2];
+
+            float u = uvs[uIdx];
+            float v = uvs[uIdx + 1];
+
+            float nx = (normals.length > nIdx + 2) ? normals[nIdx] : 0.0f;
+            float ny = (normals.length > nIdx + 2) ? normals[nIdx + 1] : 1.0f;
+            float nz = (normals.length > nIdx + 2) ? normals[nIdx + 2] : 0.0f;
+
+            consumer.addVertex(pose, x, y, z)
+                    .setColor(red, green, blue, alpha)
+                    .setUv(u, v)
+                    .setOverlay(packedOverlay)
+                    .setLight(packedLight)
+                    .setNormal(poseEntry, nx, ny, nz);
         }
     }
 

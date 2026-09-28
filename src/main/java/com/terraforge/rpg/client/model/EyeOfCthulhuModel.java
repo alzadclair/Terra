@@ -221,19 +221,14 @@ public class EyeOfCthulhuModel extends HierarchicalModel<EyeOfCthulhuEntity> {
                 logDebugIfNeeded(currentEntity, isPhase2, skeleton, instance, meshData);
             }
 
-            // 1. Render OPAQUE and CUTOUT parts through the primary mob buffer (entityCutoutNoCull)
-            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.OPAQUE);
-            instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.CUTOUT);
-
-            // 2. Render TRANSLUCENT parts (e.g. glass cornea) through dedicated translucent render pass
-            if (instance.hasPartsWithMode(TerraSkinnedMeshData.RenderMode.TRANSLUCENT)) {
-                ResourceLocation texLoc = isPhase2 ? EyeOfCthulhuRenderer.TEXTURE_P2 : EyeOfCthulhuRenderer.TEXTURE_P1;
-                VertexConsumer transBuffer = (this.currentBufferSource != null)
-                        ? this.currentBufferSource.getBuffer(RenderType.entityTranslucent(texLoc))
-                        : null;
-                if (transBuffer != null) {
-                    instance.render(poseStack, transBuffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.TRANSLUCENT);
-                }
+            ResourceLocation defaultTex = isPhase2 ? EyeOfCthulhuRenderer.TEXTURE_P2 : EyeOfCthulhuRenderer.TEXTURE_P1;
+            if (this.currentBufferSource != null) {
+                // Material-first per-part multi-buffer rendering
+                instance.render(poseStack, this.currentBufferSource, defaultTex, packedLight, packedOverlay, r, g, b, a);
+            } else {
+                // Fallback for tests or direct buffer rendering
+                instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.OPAQUE);
+                instance.render(poseStack, buffer, packedLight, packedOverlay, r, g, b, a, TerraSkinnedMeshData.RenderMode.CUTOUT);
             }
         } catch (Exception e) {
             TerraLogger.error("CLIENT", "Failed to render skinned Eye of Cthulhu mesh, falling back to static OBJ mesh", e);

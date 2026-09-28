@@ -159,8 +159,10 @@ public final class TerraSkinnedMeshLoader {
                         ? TerraSkinnedMeshData.RenderMode.fromString(pObj.get("renderMode").getAsString())
                         : ("glass".equalsIgnoreCase(partName) ? TerraSkinnedMeshData.RenderMode.TRANSLUCENT : TerraSkinnedMeshData.RenderMode.OPAQUE);
 
+                String partTexture = pObj.has("texture") ? pObj.get("texture").getAsString() : null;
+
                 parts.add(new TerraSkinnedMeshData.PartData(
-                        partName, vertexCount, positions, normals, uvs, boneIndices, boneWeights, indices, renderMode
+                        partName, vertexCount, positions, normals, uvs, boneIndices, boneWeights, indices, renderMode, partTexture
                 ));
             }
         }

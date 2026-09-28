@@ -56,15 +56,23 @@ public class TerraSkinnedMeshData {
         public final float[] boneWeights;
         public final int[] indices;
         public final RenderMode renderMode;
+        public final String texture;
+        public final net.minecraft.resources.ResourceLocation textureLocation;
 
         public PartData(String name, int vertexCount, float[] bindPositions, float[] bindNormals,
                         float[] uvs, int[] boneIndices, float[] boneWeights, int[] indices) {
             this(name, vertexCount, bindPositions, bindNormals, uvs, boneIndices, boneWeights, indices,
-                 "glass".equalsIgnoreCase(name) ? RenderMode.TRANSLUCENT : RenderMode.OPAQUE);
+                 "glass".equalsIgnoreCase(name) ? RenderMode.TRANSLUCENT : RenderMode.OPAQUE, null);
         }
 
         public PartData(String name, int vertexCount, float[] bindPositions, float[] bindNormals,
                         float[] uvs, int[] boneIndices, float[] boneWeights, int[] indices, RenderMode renderMode) {
+            this(name, vertexCount, bindPositions, bindNormals, uvs, boneIndices, boneWeights, indices, renderMode, null);
+        }
+
+        public PartData(String name, int vertexCount, float[] bindPositions, float[] bindNormals,
+                        float[] uvs, int[] boneIndices, float[] boneWeights, int[] indices,
+                        RenderMode renderMode, String texture) {
             this.name = name;
             this.vertexCount = vertexCount;
             this.bindPositions = bindPositions;
@@ -74,6 +82,15 @@ public class TerraSkinnedMeshData {
             this.boneWeights = boneWeights;
             this.indices = indices;
             this.renderMode = (renderMode != null) ? renderMode : ("glass".equalsIgnoreCase(name) ? RenderMode.TRANSLUCENT : RenderMode.OPAQUE);
+            this.texture = texture;
+            if (texture != null && !texture.trim().isEmpty()) {
+                String clean = texture.trim();
+                this.textureLocation = clean.contains(":")
+                        ? net.minecraft.resources.ResourceLocation.parse(clean)
+                        : net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(com.terraforge.rpg.TerraForgeRPG.MOD_ID, clean);
+            } else {
+                this.textureLocation = null;
+            }
         }
     }
 

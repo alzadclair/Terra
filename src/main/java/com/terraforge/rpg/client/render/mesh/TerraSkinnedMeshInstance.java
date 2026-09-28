@@ -108,30 +108,47 @@ public class TerraSkinnedMeshInstance {
 
             int[] indices = data.indices;
             float[] uvs = data.uvs;
+            var poseEntry = poseStack.last();
 
-            for (int i = 0; i < indices.length; i++) {
-                int idx = indices[i];
-                int pIdx = idx * 3;
-                int uIdx = idx * 2;
+            // Minecraft entity RenderTypes use VertexFormat.Mode.QUADS.
+            // Emitting each triangle (i0, i1, i2) as a degenerate quad (i0, i1, i2, i2) guarantees
+            // that Minecraft's quad-to-triangle index buffer creates triangle (i0, i1, i2) and a zero-area
+            // degenerate triangle (i2, i2, i0), completely eliminating bogus cross-triangle bridging and missing holes.
+            for (int i = 0; i < indices.length; i += 3) {
+                int idx0 = indices[i];
+                int idx1 = indices[i + 1];
+                int idx2 = indices[i + 2];
 
-                float x = skinnedPositions[pIdx];
-                float y = skinnedPositions[pIdx + 1];
-                float z = skinnedPositions[pIdx + 2];
-
-                float u = uvs[uIdx];
-                float v = uvs[uIdx + 1];
-
-                float nx = skinnedNormals[pIdx];
-                float ny = skinnedNormals[pIdx + 1];
-                float nz = skinnedNormals[pIdx + 2];
-
-                consumer.addVertex(pose, x, y, z)
-                        .setColor(red, green, blue, alpha)
-                        .setUv(u, v)
-                        .setOverlay(packedOverlay)
-                        .setLight(packedLight)
-                        .setNormal(poseStack.last(), nx, ny, nz);
+                emitVertex(consumer, pose, poseEntry, idx0, uvs, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx1, uvs, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx2, uvs, red, green, blue, alpha, packedLight, packedOverlay);
+                emitVertex(consumer, pose, poseEntry, idx2, uvs, red, green, blue, alpha, packedLight, packedOverlay);
             }
+        }
+
+        private void emitVertex(VertexConsumer consumer, Matrix4f pose, com.mojang.blaze3d.vertex.PoseStack.Pose poseEntry,
+                                int idx, float[] uvs, int red, int green, int blue, int alpha,
+                                int packedLight, int packedOverlay) {
+            int pIdx = idx * 3;
+            int uIdx = idx * 2;
+
+            float x = skinnedPositions[pIdx];
+            float y = skinnedPositions[pIdx + 1];
+            float z = skinnedPositions[pIdx + 2];
+
+            float u = uvs[uIdx];
+            float v = uvs[uIdx + 1];
+
+            float nx = skinnedNormals[pIdx];
+            float ny = skinnedNormals[pIdx + 1];
+            float nz = skinnedNormals[pIdx + 2];
+
+            consumer.addVertex(pose, x, y, z)
+                    .setColor(red, green, blue, alpha)
+                    .setUv(u, v)
+                    .setOverlay(packedOverlay)
+                    .setLight(packedLight)
+                    .setNormal(poseEntry, nx, ny, nz);
         }
     }
 
@@ -247,5 +264,60 @@ public class TerraSkinnedMeshInstance {
 
     public void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay) {
         render(poseStack, consumer, packedLight, packedOverlay, 1.0f, 1.0f, 1.0f, 1.0f, null);
+    }
+
+    /**
+     * Material-first multi-buffer rendering: selects appropriate VertexConsumer and RenderType
+     * per part based on part.data.renderMode and part.data.textureLocation (or defaultTexture fallback).
+     */
+    public void render(PoseStack poseStack, net.minecraft.client.renderer.MultiBufferSource bufferSource,
+                       net.minecraft.resources.ResourceLocation defaultTexture,
+                       int packedLight, int packedOverlay, float r, float g, float b, float a) {
+        String filter = getEffectiveDebugSubmeshFilter();
+        boolean hasFilter = (filter != null);
+
+        // PASS 1: Render all OPAQUE and CUTOUT parts first
+        for (PartInstance part : parts) {
+            if (hasFilter && !part.data.name.equalsIgnoreCase(filter)) {
+                continue;
+            }
+            if (part.data.renderMode == TerraSkinnedMeshData.RenderMode.TRANSLUCENT) {
+                continue;
+            }
+
+            net.minecraft.resources.ResourceLocation tex = part.data.textureLocation != null
+                    ? part.data.textureLocation
+                    : defaultTexture;
+
+            VertexConsumer consumer;
+            if (part.data.renderMode == TerraSkinnedMeshData.RenderMode.CUTOUT) {
+                consumer = bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(tex));
+            } else {
+                consumer = bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.entitySolid(tex));
+            }
+
+            if (consumer != null) {
+                part.render(poseStack, consumer, packedLight, packedOverlay, r, g, b, a);
+            }
+        }
+
+        // PASS 2: Render all TRANSLUCENT parts (such as the cornea glass dome) strictly after all opaque parts
+        for (PartInstance part : parts) {
+            if (hasFilter && !part.data.name.equalsIgnoreCase(filter)) {
+                continue;
+            }
+            if (part.data.renderMode != TerraSkinnedMeshData.RenderMode.TRANSLUCENT) {
+                continue;
+            }
+
+            net.minecraft.resources.ResourceLocation tex = part.data.textureLocation != null
+                    ? part.data.textureLocation
+                    : defaultTexture;
+
+            VertexConsumer consumer = bufferSource.getBuffer(net.minecraft.client.renderer.RenderType.entityTranslucent(tex));
+            if (consumer != null) {
+                part.render(poseStack, consumer, packedLight, packedOverlay, r, g, b, a);
+            }
+        }
     }
 }
